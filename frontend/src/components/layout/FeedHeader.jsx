@@ -1,22 +1,32 @@
-import { SquarePen } from "lucide-react";
+import { SquarePen, WifiOff } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 import BrandMark from "../ui/BrandMark";
 
 export default function FeedHeader({ onCompose }) {
+  const { apiMode } = useAuth();
+
   return (
     <header className="feed-header" id="feed-start">
       <div className="feed-header__mobile-brand">
         <BrandMark compact />
       </div>
-      <div>
-        <p className="eyebrow">Community</p>
-        <h1>Latest conversations</h1>
-        <p>Thoughts and moments shared by everyone.</p>
+      <div className="feed-header__copy">
+        <p className="eyebrow">The community signal</p>
+        <h1>Fresh from the feed</h1>
+        <p>Small updates, useful ideas, and moments worth sharing.</p>
       </div>
-      <button className="button button--primary feed-header__action" type="button" onClick={onCompose}>
-        <SquarePen size={18} aria-hidden="true" />
-        New post
-      </button>
+      <div className="feed-header__controls">
+        {apiMode === "explorer" ? (
+          <span className="mode-badge" title="The backend is unavailable; local explorer data is active.">
+            <WifiOff size={14} aria-hidden="true" />
+            Explorer
+          </span>
+        ) : null}
+        <button className="button button--primary feed-header__action" type="button" onClick={onCompose}>
+          <SquarePen size={18} aria-hidden="true" />
+          <span>New post</span>
+        </button>
+      </div>
     </header>
   );
 }
-

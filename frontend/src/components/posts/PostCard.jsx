@@ -43,7 +43,13 @@ export default function PostCard({ post, onToggleLike, onAddComment }) {
           </div>
         ) : (
           <div className="post-card__media">
-            <img src={post.imageUrl} alt={`Post shared by ${post.username}`} onError={() => setMediaFailed(true)} />
+            <img
+              src={post.imageUrl}
+              alt={`Post shared by ${post.username}`}
+              loading="lazy"
+              decoding="async"
+              onError={() => setMediaFailed(true)}
+            />
           </div>
         )
       ) : null}

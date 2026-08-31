@@ -9,17 +9,30 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [values, setValues] = useState({ email: "", password: "" });
+  const [fieldErrors, setFieldErrors] = useState({});
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   function updateField(event) {
     const { name, value } = event.target;
     setValues((current) => ({ ...current, [name]: value }));
+    setFieldErrors((current) => ({ ...current, [name]: "" }));
     setError("");
+  }
+
+  function validate() {
+    const nextErrors = {};
+    if (!/^\S+@\S+\.\S+$/.test(values.email.trim())) {
+      nextErrors.email = "Enter a valid email address.";
+    }
+    if (!values.password) nextErrors.password = "Enter your password.";
+    setFieldErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
   }
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (!validate()) return;
     setSubmitting(true);
     setError("");
 
@@ -42,7 +55,7 @@ export default function LoginPage() {
       <form className="auth-form" onSubmit={handleSubmit} noValidate>
         {error ? <div className="form-alert" role="alert">{error}</div> : null}
 
-        <div className="field">
+        <div className={`field${fieldErrors.email ? " field--error" : ""}`}>
           <label htmlFor="email">Email address</label>
           <input
             id="email"
@@ -52,8 +65,13 @@ export default function LoginPage() {
             onChange={updateField}
             placeholder="you@example.com"
             autoComplete="email"
+            aria-invalid={Boolean(fieldErrors.email)}
+            aria-describedby={fieldErrors.email ? "login-email-error" : undefined}
             required
           />
+          {fieldErrors.email ? (
+            <p className="field__error" id="login-email-error">{fieldErrors.email}</p>
+          ) : null}
         </div>
 
         <PasswordField
@@ -61,6 +79,7 @@ export default function LoginPage() {
           label="Password"
           value={values.password}
           onChange={updateField}
+          error={fieldErrors.password}
           autoComplete="current-password"
         />
 
@@ -76,4 +95,3 @@ export default function LoginPage() {
     </AuthLayout>
   );
 }
-

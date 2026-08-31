@@ -1,4 +1,5 @@
-import { CheckCircle2, MessageCircleHeart, PanelsTopLeft } from "lucide-react";
+import { CheckCircle2, MessageCircleHeart, PanelsTopLeft, WifiOff } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 import BrandMark from "../ui/BrandMark";
 
 const productPoints = [
@@ -20,6 +21,8 @@ const productPoints = [
 ];
 
 export default function AuthLayout({ eyebrow, title, description, children }) {
+  const { apiMode } = useAuth();
+
   return (
     <main className="auth-layout">
       <section className="auth-story" aria-label="About Mini Social">
@@ -56,10 +59,18 @@ export default function AuthLayout({ eyebrow, title, description, children }) {
           <p className="eyebrow">{eyebrow}</p>
           <h2>{title}</h2>
           <p className="auth-card__description">{description}</p>
+          {apiMode === "explorer" ? (
+            <div className="explorer-note" role="status">
+              <WifiOff size={17} aria-hidden="true" />
+              <span>
+                <strong>Explorer mode is ready.</strong>
+                The backend is offline, so test credentials will use a private local session.
+              </span>
+            </div>
+          ) : null}
           {children}
         </div>
       </section>
     </main>
   );
 }
-

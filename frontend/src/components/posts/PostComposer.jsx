@@ -132,7 +132,11 @@ const PostComposer = forwardRef(function PostComposer({ onCreate }, ref) {
             </label>
             <span className="composer__counter">{text.length}/600</span>
           </div>
-          <button className="button button--primary" type="submit" disabled={submitting}>
+          <button
+            className="button button--primary"
+            type="submit"
+            disabled={submitting || (!text.trim() && !image)}
+          >
             {submitting ? <LoaderCircle className="spin" size={18} aria-hidden="true" /> : <Send size={17} aria-hidden="true" />}
             {submitting ? "Posting…" : "Post"}
           </button>
@@ -143,4 +147,3 @@ const PostComposer = forwardRef(function PostComposer({ onCreate }, ref) {
 });
 
 export default PostComposer;
-
