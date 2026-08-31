@@ -1,6 +1,6 @@
 # 3W Mini Social Application
 
-A responsive React frontend for the 3W full-stack internship assessment. The interface follows the familiar social-feed mental model while using an original warm-neutral visual identity and deliberately improving the desktop, loading, and password experiences observed in the TaskPlanet reference recordings.
+A responsive React frontend for the 3W full-stack internship assessment. The interface follows the familiar social-feed mental model while using an original, restrained dark visual identity and deliberately improving the mobile, desktop, loading, and password experiences observed in the TaskPlanet reference recordings.
 
 ## Current scope
 
@@ -11,6 +11,7 @@ Implemented frontend experiences:
 - Accessible signup and login screens.
 - Independent visibility controls for every password field.
 - Protected feed route and session bootstrap.
+- Offline Explorer Mode for authentication, feed, posts, images, likes, and comments when the backend cannot be reached.
 - Text-only, image-only, and combined post composer.
 - Image preview, removal, type validation, and 5 MB size validation.
 - Public feed cards with author, timestamp, content, media, likes, and comments.
@@ -70,9 +71,12 @@ The default frontend URL is `http://localhost:5173`.
 
 ```env
 VITE_API_BASE_URL=http://localhost:5000/api
+VITE_ENABLE_EXPLORER_MODE=true
 ```
 
 The client sends cookies with `credentials: "include"`. If the backend returns a bearer token, the compatibility layer keeps it in `sessionStorage` for the current browser tab and attaches it to subsequent requests. An HTTP-only cookie remains the preferred production authentication mechanism.
+
+Explorer Mode activates only when `fetch` cannot reach the configured backend or the request times out. Normal HTTP errors such as validation, authentication, and server responses are still surfaced to the UI instead of being converted into mock successes. Set `VITE_ENABLE_EXPLORER_MODE=false` to require the real API during integration testing.
 
 ## Expected backend endpoints
 
