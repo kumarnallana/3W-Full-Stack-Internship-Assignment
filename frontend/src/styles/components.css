@@ -255,7 +255,9 @@
   min-height: 48px;
   padding: 0.72rem 0.82rem;
   color: var(--color-text);
-  background: var(--color-surface-raised);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   outline: 0;
@@ -442,6 +444,8 @@
   flex-direction: column;
   padding: var(--space-5);
   background: var(--color-surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-sm);
@@ -681,9 +685,18 @@
 .composer,
 .post-card {
   background: var(--color-surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-sm);
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.composer:hover,
+.post-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
 }
 
 .composer {
@@ -715,10 +728,13 @@
   resize: vertical;
   padding: var(--space-4);
   color: var(--color-text);
-  background: var(--color-surface-raised);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
   outline: 0;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .composer__preview {

@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800&display=swap');
+
 *,
 *::before,
 *::after {
@@ -14,11 +16,30 @@ body {
   min-height: 100vh;
   color: var(--color-text);
   background: var(--color-bg);
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(244, 63, 94, 0.05), transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(59, 130, 246, 0.05), transparent 25%);
+  background-attachment: fixed;
   font-family: var(--font-sans);
   font-size: 1rem;
   line-height: 1.5;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg-deep);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: var(--radius-pill);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-subtle);
 }
 
 button,
@@ -56,13 +77,14 @@ p {
 }
 
 :focus-visible {
-  outline: 3px solid rgb(226 83 62 / 0.3);
+  outline: 2px solid var(--color-accent);
   outline-offset: 3px;
+  box-shadow: 0 0 0 4px var(--color-accent-glow);
 }
 
 ::selection {
-  color: var(--color-ink);
-  background: #f6c9bf;
+  color: #ffffff;
+  background: var(--color-accent);
 }
 
 .sr-only {
@@ -101,44 +123,46 @@ p {
   text-decoration: none;
   transition:
     transform var(--transition-fast),
-    background-color var(--transition-fast),
+    background var(--transition-fast),
     border-color var(--transition-fast),
     box-shadow var(--transition-fast);
 }
 
 .button:hover:not(:disabled) {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
 .button:active:not(:disabled) {
-  transform: translateY(0);
+  transform: translateY(1px);
 }
 
 .button:disabled {
   cursor: not-allowed;
-  opacity: 0.62;
+  opacity: 0.5;
 }
 
 .button--primary {
   color: #fff;
-  background: var(--color-accent);
-  box-shadow: 0 7px 18px rgb(226 83 62 / 0.2);
+  background: linear-gradient(135deg, var(--color-accent), var(--color-accent-strong));
+  box-shadow: var(--shadow-sm);
+  border: none;
 }
 
 .button--primary:hover:not(:disabled) {
-  background: var(--color-accent-strong);
-  box-shadow: 0 10px 22px rgb(189 55 40 / 0.22);
+  box-shadow: var(--shadow-glow);
 }
 
 .button--secondary {
   color: var(--color-text);
-  background: var(--color-surface-raised);
-  border-color: var(--color-border);
+  background: var(--color-surface);
+  border-color: var(--color-border-strong);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .button--secondary:hover:not(:disabled) {
-  border-color: var(--color-border-strong);
-  background: var(--color-surface);
+  border-color: var(--color-text-subtle);
+  background: var(--color-surface-raised);
 }
 
 .button--wide {
