@@ -1,0 +1,48 @@
+:root {
+  --font-sans: Inter, Aptos, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  --color-bg: #f4f2ed;
+  --color-bg-deep: #ebe8e1;
+  --color-surface: #fffdfa;
+  --color-surface-raised: #ffffff;
+  --color-surface-muted: #f0eee8;
+  --color-text: #19202f;
+  --color-text-secondary: #697182;
+  --color-text-subtle: #8b91a0;
+  --color-border: #ddd9d1;
+  --color-border-strong: #c9c4ba;
+  --color-accent: #e2533e;
+  --color-accent-strong: #bd3728;
+  --color-accent-soft: #fce9e4;
+  --color-support: #278c7e;
+  --color-support-soft: #e1f3ef;
+  --color-danger: #b83232;
+  --color-danger-soft: #fae9e7;
+  --color-success: #207463;
+  --color-success-soft: #e0f1ed;
+  --color-ink: #172033;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  --radius-sm: 0.55rem;
+  --radius-md: 0.85rem;
+  --radius-lg: 1.15rem;
+  --radius-xl: 1.6rem;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgb(25 32 47 / 0.04), 0 6px 20px rgb(25 32 47 / 0.035);
+  --shadow-md: 0 18px 45px rgb(25 32 47 / 0.09);
+
+  --transition-fast: 160ms ease;
+  --transition-base: 220ms ease;
+}
+
