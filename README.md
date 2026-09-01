@@ -1,6 +1,10 @@
 # Mini Social — 3W Full-Stack Assessment
 
-Mini Social is a complete React, Express, and MongoDB social-post application. It keeps the assessment scope focused—authentication, posts, images, likes, and comments—while providing an original mobile-first interface and honest runtime behavior.
+[![Live Demo](https://img.shields.io/badge/Live_Demo-Click_Here-blue?style=for-the-badge&logo=vercel)](https://frontend-g4fxx4r1u-sasi-kumar-nallana.vercel.app/)
+
+> 🚀 **Recruiters & Reviewers:** Please click the badge above or visit **[https://frontend-g4fxx4r1u-sasi-kumar-nallana.vercel.app/](https://frontend-g4fxx4r1u-sasi-kumar-nallana.vercel.app/)** to observe the live interactive demo of this assessment!
+
+Mini Social is a complete React, Express, and MongoDB social-post application built for the 3W Full-Stack Internship Assessment. It keeps the assessment scope focused—authentication, posts, images, likes, and comments—while providing a premium, original mobile-first interface and robust full-stack architecture.
 
 The important correctness rule is simple: **an API rejection never becomes a successful login**. Real mode uses the Express/MongoDB API. Only a genuine network failure, unreachable backend, or timeout can move the browser into the clearly labelled local demo, where credentials are still verified exactly.
 
