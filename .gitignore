@@ -8,3 +8,11 @@ dist/
 Thumbs.db
 backend/uploads/*
 !backend/uploads/.gitkeep
+
+# Temporary files and artifacts
+Task_Submission_Document.*
+implementation_plan.md
+walkthrough.md
+task.md
+styles_verification.md
+review*.md
