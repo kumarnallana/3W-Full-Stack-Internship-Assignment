@@ -1,8 +1,10 @@
 import { APP_MODE } from "../config/appMode";
 import { demoApiRequest, DemoApiError } from "./demoApi";
 
-const DEFAULT_API_BASE_URL = "http://localhost:5000/api";
-const REQUEST_TIMEOUT_MS = 8000;
+const DEFAULT_API_BASE_URL = typeof window !== "undefined" && window.location.hostname === "localhost"
+  ? "http://localhost:5000/api"
+  : "https://threew-full-stack-internship-assignment-oaq4.onrender.com/api";
+const REQUEST_TIMEOUT_MS = 15000;
 let activeApiMode = APP_MODE;
 const apiModeListeners = new Set();
 
@@ -72,8 +74,13 @@ export async function apiRequest(path, options = {}) {
       body: isFormData || typeof body === "string" ? body : body ? JSON.stringify(body) : undefined,
     });
   } catch (networkError) {
-    setApiMode("demo");
-    return requestFromDemo(path, options);
+    throw new ApiError(
+      networkError.name === "AbortError"
+        ? "The server took too long to respond. Please try again."
+        : "Mini Social cannot reach the server. Start the API and database, then try again.",
+      0,
+      { cause: networkError.name || "NetworkError" },
+    );
   } finally {
     window.clearTimeout(timeoutId);
   }

@@ -20,7 +20,7 @@ export function createApp() {
   app.use(cors({
     credentials: true,
     origin(origin, callback) {
-      if (!origin || env.clientOrigins.includes(origin)) {
+      if (!origin || env.clientOrigins.includes(origin) || origin.endsWith(".vercel.app") || origin.includes("localhost")) {
         callback(null, true);
         return;
       }
