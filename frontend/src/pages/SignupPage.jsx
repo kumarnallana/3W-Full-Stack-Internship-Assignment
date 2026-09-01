@@ -1,13 +1,20 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../components/auth/AuthLayout";
 import PasswordField from "../components/auth/PasswordField";
 import { useAuth } from "../context/AuthContext";
+import { AUTH_RULES, firstInvalidField, validateSignup } from "../validation/authValidation";
 
 export default function SignupPage() {
   const navigate = useNavigate();
   const { signup } = useAuth();
+  const fieldRefs = {
+    username: useRef(null),
+    email: useRef(null),
+    password: useRef(null),
+    confirmPassword: useRef(null),
+  };
   const [values, setValues] = useState({
     username: "",
     email: "",
@@ -25,22 +32,21 @@ export default function SignupPage() {
     setRequestError("");
   }
 
+  function focusFirstError(nextErrors) {
+    const field = firstInvalidField(nextErrors, ["username", "email", "password", "confirmPassword"]);
+    fieldRefs[field]?.current?.focus();
+  }
+
   function validate() {
-    const nextErrors = {};
-    if (values.username.trim().length < 2) {
-      nextErrors.username = "Use at least 2 characters.";
-    }
-    if (!/^\S+@\S+\.\S+$/.test(values.email.trim())) {
-      nextErrors.email = "Enter a valid email address.";
-    }
-    if (values.password.length < 6) {
-      nextErrors.password = "Use at least 6 characters.";
-    }
-    if (values.password !== values.confirmPassword) {
-      nextErrors.confirmPassword = "The passwords do not match.";
-    }
+    const nextErrors = validateSignup(values);
     setErrors(nextErrors);
+    if (Object.keys(nextErrors).length) window.requestAnimationFrame(() => focusFirstError(nextErrors));
     return Object.keys(nextErrors).length === 0;
+  }
+
+  function validateField(field) {
+    const nextError = validateSignup(values)[field] || "";
+    setErrors((current) => ({ ...current, [field]: nextError }));
   }
 
   async function handleSubmit(event) {
@@ -57,6 +63,11 @@ export default function SignupPage() {
       });
       navigate(user ? "/feed" : "/login", { replace: true });
     } catch (error) {
+      const serverErrors = error.details?.fieldErrors || {};
+      if (Object.keys(serverErrors).length) {
+        setErrors(serverErrors);
+        window.requestAnimationFrame(() => focusFirstError(serverErrors));
+      }
       setRequestError(error.message || "Unable to create your account.");
     } finally {
       setSubmitting(false);
@@ -75,12 +86,16 @@ export default function SignupPage() {
         <div className={`field${errors.username ? " field--error" : ""}`}>
           <label htmlFor="username">Username</label>
           <input
+            ref={fieldRefs.username}
             id="username"
             name="username"
             value={values.username}
             onChange={updateField}
             placeholder="How others will know you"
             autoComplete="username"
+            minLength={AUTH_RULES.usernameMin}
+            maxLength={AUTH_RULES.usernameMax}
+            onBlur={() => validateField("username")}
             aria-invalid={Boolean(errors.username)}
             aria-describedby={errors.username ? "username-error" : undefined}
             required
@@ -91,6 +106,7 @@ export default function SignupPage() {
         <div className={`field${errors.email ? " field--error" : ""}`}>
           <label htmlFor="email">Email address</label>
           <input
+            ref={fieldRefs.email}
             id="email"
             name="email"
             type="email"
@@ -98,6 +114,8 @@ export default function SignupPage() {
             onChange={updateField}
             placeholder="you@example.com"
             autoComplete="email"
+            maxLength={254}
+            onBlur={() => validateField("email")}
             aria-invalid={Boolean(errors.email)}
             aria-describedby={errors.email ? "email-error" : undefined}
             required
@@ -113,6 +131,8 @@ export default function SignupPage() {
             onChange={updateField}
             error={errors.password}
             autoComplete="new-password"
+            inputRef={fieldRefs.password}
+            onBlur={() => validateField("password")}
           />
           <PasswordField
             id="confirmPassword"
@@ -121,6 +141,8 @@ export default function SignupPage() {
             onChange={updateField}
             error={errors.confirmPassword}
             autoComplete="new-password"
+            inputRef={fieldRefs.confirmPassword}
+            onBlur={() => validateField("confirmPassword")}
           />
         </div>
 
@@ -136,4 +158,3 @@ export default function SignupPage() {
     </AuthLayout>
   );
 }
-

@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { authApi } from "../services/authApi";
-import { getApiMode, subscribeToApiMode } from "../services/apiClient";
+import { getApiMode } from "../services/apiClient";
 
 const AuthContext = createContext(null);
 let sessionBootstrap;
@@ -17,9 +17,8 @@ function loadCurrentSession() {
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [status, setStatus] = useState("checking");
-  const [apiMode, setApiMode] = useState(getApiMode());
-
-  useEffect(() => subscribeToApiMode(setApiMode), []);
+  const [sessionError, setSessionError] = useState("");
+  const apiMode = getApiMode();
 
   useEffect(() => {
     let active = true;
@@ -30,10 +29,11 @@ export function AuthProvider({ children }) {
         setUser(currentUser);
         setStatus(currentUser ? "authenticated" : "anonymous");
       })
-      .catch(() => {
+      .catch((error) => {
         if (!active) return;
         setUser(null);
         setStatus("anonymous");
+        if (error.status !== 401) setSessionError(error.message || "The session could not be checked.");
       });
 
     return () => {
@@ -42,6 +42,7 @@ export function AuthProvider({ children }) {
   }, []);
 
   async function login(values) {
+    setSessionError("");
     const response = await authApi.login(values);
     let nextUser = response.user;
 
@@ -55,6 +56,7 @@ export function AuthProvider({ children }) {
   }
 
   async function signup(values) {
+    setSessionError("");
     const response = await authApi.signup(values);
     let nextUser = response.user;
 
@@ -83,9 +85,23 @@ export function AuthProvider({ children }) {
     }
   }
 
+  async function retrySession() {
+    setStatus("checking");
+    setSessionError("");
+    try {
+      const currentUser = await loadCurrentSession();
+      setUser(currentUser);
+      setStatus(currentUser ? "authenticated" : "anonymous");
+    } catch (error) {
+      setUser(null);
+      setStatus("anonymous");
+      if (error.status !== 401) setSessionError(error.message || "The session could not be checked.");
+    }
+  }
+
   const value = useMemo(
-    () => ({ user, status, apiMode, login, signup, logout }),
-    [user, status, apiMode],
+    () => ({ user, status, apiMode, sessionError, login, signup, logout, retrySession }),
+    [user, status, apiMode, sessionError],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

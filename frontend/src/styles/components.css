@@ -120,7 +120,7 @@
   font-size: 0.94rem;
 }
 
-.explorer-note {
+.environment-note {
   display: flex;
   align-items: flex-start;
   gap: var(--space-3);
@@ -133,24 +133,74 @@
   font-size: 0.78rem;
 }
 
-.explorer-note svg {
+.environment-note > svg {
   flex: 0 0 auto;
   margin-top: 0.1rem;
 }
 
-.explorer-note span,
-.explorer-note strong {
+.environment-note span,
+.environment-note strong {
   display: block;
 }
 
-.explorer-note strong {
+.environment-note strong {
   margin-bottom: 0.12rem;
   color: var(--color-text);
+}
+
+.environment-note--error {
+  color: var(--color-danger);
+  background: var(--color-danger-soft);
+  border-color: rgb(255 133 139 / 0.18);
+}
+
+.environment-note--error button {
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: var(--space-2);
+  padding: 0.35rem 0.55rem;
+  color: var(--color-text);
+  background: var(--color-surface-raised);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xs);
+  cursor: pointer;
 }
 
 .auth-form {
   display: grid;
   gap: var(--space-5);
+}
+
+.demo-credentials {
+  width: 100%;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 0.65rem 0.75rem;
+  color: var(--color-text-secondary);
+  background: var(--color-surface-muted);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 0.77rem;
+  font-weight: 680;
+  text-align: left;
+  cursor: pointer;
+}
+
+.demo-credentials span {
+  color: var(--color-support);
+  font-size: 0.7rem;
+  font-weight: 560;
+}
+
+.demo-credentials:hover {
+  color: var(--color-text);
+  background: var(--color-surface-hover);
+  border-color: var(--color-border-strong);
 }
 
 .auth-form__password-grid {

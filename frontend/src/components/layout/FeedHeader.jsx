@@ -1,4 +1,4 @@
-import { SquarePen, WifiOff } from "lucide-react";
+import { FlaskConical, SquarePen } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import BrandMark from "../ui/BrandMark";
 
@@ -16,10 +16,10 @@ export default function FeedHeader({ onCompose }) {
         <p>Small updates, useful ideas, and moments worth sharing.</p>
       </div>
       <div className="feed-header__controls">
-        {apiMode === "explorer" ? (
-          <span className="mode-badge" title="The backend is unavailable; local explorer data is active.">
-            <WifiOff size={14} aria-hidden="true" />
-            Explorer
+        {apiMode === "demo" ? (
+          <span className="mode-badge" title="This explicitly configured environment stores demo data in this browser.">
+            <FlaskConical size={14} aria-hidden="true" />
+            Demo
           </span>
         ) : null}
         <button className="button button--primary feed-header__action" type="button" onClick={onCompose}>

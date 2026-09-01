@@ -9,6 +9,10 @@ export default function PasswordField({
   error,
   autoComplete,
   placeholder = "Enter your password",
+  inputRef,
+  minLength = 8,
+  maxLength = 64,
+  onBlur,
 }) {
   const [visible, setVisible] = useState(false);
 
@@ -17,6 +21,7 @@ export default function PasswordField({
       <label htmlFor={id}>{label}</label>
       <div className="password-field">
         <input
+          ref={inputRef}
           id={id}
           name={id}
           type={visible ? "text" : "password"}
@@ -24,6 +29,9 @@ export default function PasswordField({
           onChange={onChange}
           placeholder={placeholder}
           autoComplete={autoComplete}
+          minLength={minLength}
+          maxLength={maxLength}
+          onBlur={onBlur}
           aria-invalid={Boolean(error)}
           aria-describedby={error ? `${id}-error` : undefined}
           required
@@ -47,4 +55,3 @@ export default function PasswordField({
     </div>
   );
 }
-

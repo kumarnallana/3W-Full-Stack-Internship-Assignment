@@ -1,13 +1,17 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../components/auth/AuthLayout";
 import PasswordField from "../components/auth/PasswordField";
+import { DEMO_ACCOUNT } from "../config/appMode";
 import { useAuth } from "../context/AuthContext";
+import { firstInvalidField, validateLogin } from "../validation/authValidation";
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, apiMode } = useAuth();
+  const emailRef = useRef(null);
+  const passwordRef = useRef(null);
   const [values, setValues] = useState({ email: "", password: "" });
   const [fieldErrors, setFieldErrors] = useState({});
   const [error, setError] = useState("");
@@ -20,14 +24,29 @@ export default function LoginPage() {
     setError("");
   }
 
+  function focusFirstError(nextErrors) {
+    const field = firstInvalidField(nextErrors, ["email", "password"]);
+    if (field === "email") emailRef.current?.focus();
+    if (field === "password") passwordRef.current?.focus();
+  }
+
   function validate() {
-    const nextErrors = {};
-    if (!/^\S+@\S+\.\S+$/.test(values.email.trim())) {
-      nextErrors.email = "Enter a valid email address.";
-    }
-    if (!values.password) nextErrors.password = "Enter your password.";
+    const nextErrors = validateLogin(values);
     setFieldErrors(nextErrors);
+    if (Object.keys(nextErrors).length) window.requestAnimationFrame(() => focusFirstError(nextErrors));
     return Object.keys(nextErrors).length === 0;
+  }
+
+  function validateField(field) {
+    const nextError = validateLogin(values)[field] || "";
+    setFieldErrors((current) => ({ ...current, [field]: nextError }));
+  }
+
+  function useDemoAccount() {
+    setValues({ email: DEMO_ACCOUNT.email, password: DEMO_ACCOUNT.password });
+    setFieldErrors({});
+    setError("");
+    passwordRef.current?.focus();
   }
 
   async function handleSubmit(event) {
@@ -40,6 +59,11 @@ export default function LoginPage() {
       await login({ email: values.email.trim(), password: values.password });
       navigate("/feed", { replace: true });
     } catch (requestError) {
+      const serverErrors = requestError.details?.fieldErrors || {};
+      if (Object.keys(serverErrors).length) {
+        setFieldErrors(serverErrors);
+        window.requestAnimationFrame(() => focusFirstError(serverErrors));
+      }
       setError(requestError.message || "Unable to log in. Please try again.");
     } finally {
       setSubmitting(false);
@@ -55,9 +79,17 @@ export default function LoginPage() {
       <form className="auth-form" onSubmit={handleSubmit} noValidate>
         {error ? <div className="form-alert" role="alert">{error}</div> : null}
 
+        {apiMode === "demo" ? (
+          <button className="demo-credentials" type="button" onClick={useDemoAccount}>
+            Use the verified demo account
+            <span>{DEMO_ACCOUNT.email}</span>
+          </button>
+        ) : null}
+
         <div className={`field${fieldErrors.email ? " field--error" : ""}`}>
           <label htmlFor="email">Email address</label>
           <input
+            ref={emailRef}
             id="email"
             name="email"
             type="email"
@@ -65,6 +97,8 @@ export default function LoginPage() {
             onChange={updateField}
             placeholder="you@example.com"
             autoComplete="email"
+            maxLength={254}
+            onBlur={() => validateField("email")}
             aria-invalid={Boolean(fieldErrors.email)}
             aria-describedby={fieldErrors.email ? "login-email-error" : undefined}
             required
@@ -81,6 +115,8 @@ export default function LoginPage() {
           onChange={updateField}
           error={fieldErrors.password}
           autoComplete="current-password"
+          inputRef={passwordRef}
+          onBlur={() => validateField("password")}
         />
 
         <button className="button button--primary button--wide" type="submit" disabled={submitting}>

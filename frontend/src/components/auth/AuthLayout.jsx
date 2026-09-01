@@ -1,4 +1,4 @@
-import { CheckCircle2, MessageCircleHeart, PanelsTopLeft, WifiOff } from "lucide-react";
+import { CheckCircle2, FlaskConical, MessageCircleHeart, PanelsTopLeft, RotateCw, ServerOff } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import BrandMark from "../ui/BrandMark";
 
@@ -21,7 +21,7 @@ const productPoints = [
 ];
 
 export default function AuthLayout({ eyebrow, title, description, children }) {
-  const { apiMode } = useAuth();
+  const { apiMode, sessionError, retrySession } = useAuth();
 
   return (
     <main className="auth-layout">
@@ -59,12 +59,24 @@ export default function AuthLayout({ eyebrow, title, description, children }) {
           <p className="eyebrow">{eyebrow}</p>
           <h2>{title}</h2>
           <p className="auth-card__description">{description}</p>
-          {apiMode === "explorer" ? (
-            <div className="explorer-note" role="status">
-              <WifiOff size={17} aria-hidden="true" />
+          {apiMode === "demo" ? (
+            <div className="environment-note" role="status">
+              <FlaskConical size={17} aria-hidden="true" />
               <span>
-                <strong>Explorer mode is ready.</strong>
-                The backend is offline, so test credentials will use a private local session.
+                <strong>Demo environment</strong>
+                Demo accounts and posts stay in this browser. This mode never activates automatically.
+              </span>
+            </div>
+          ) : null}
+          {sessionError ? (
+            <div className="environment-note environment-note--error" role="alert">
+              <ServerOff size={17} aria-hidden="true" />
+              <span>
+                <strong>API connection unavailable</strong>
+                {sessionError}
+                <button type="button" onClick={retrySession}>
+                  <RotateCw size={14} aria-hidden="true" /> Retry connection
+                </button>
               </span>
             </div>
           ) : null}

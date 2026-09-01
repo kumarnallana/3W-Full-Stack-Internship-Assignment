@@ -1,12 +1,9 @@
-import { mockApiRequest, MockApiError } from "./mockApi";
+import { APP_MODE } from "../config/appMode";
+import { demoApiRequest, DemoApiError } from "./demoApi";
 
 const DEFAULT_API_BASE_URL = "http://localhost:5000/api";
 const TOKEN_KEY = "mini_social_session_token";
-const REQUEST_TIMEOUT_MS = 3000;
-const EXPLORER_ENABLED = import.meta.env.VITE_ENABLE_EXPLORER_MODE !== "false";
-
-let apiMode = "live";
-const modeSubscribers = new Set();
+const REQUEST_TIMEOUT_MS = 8000;
 
 export const API_BASE_URL = (
   import.meta.env.VITE_API_BASE_URL || DEFAULT_API_BASE_URL
@@ -22,18 +19,7 @@ export class ApiError extends Error {
 }
 
 export function getApiMode() {
-  return apiMode;
-}
-
-export function subscribeToApiMode(subscriber) {
-  modeSubscribers.add(subscriber);
-  return () => modeSubscribers.delete(subscriber);
-}
-
-function setApiMode(nextMode) {
-  if (apiMode === nextMode) return;
-  apiMode = nextMode;
-  modeSubscribers.forEach((subscriber) => subscriber(nextMode));
+  return APP_MODE;
 }
 
 export function getSessionToken() {
@@ -62,8 +48,8 @@ function getErrorMessage(payload, fallback) {
 }
 
 export async function apiRequest(path, options = {}) {
-  if (apiMode === "explorer") {
-    return requestFromExplorer(path, options);
+  if (APP_MODE === "demo") {
+    return requestFromDemo(path, options);
   }
 
   const { body, headers = {}, ...requestOptions } = options;
@@ -88,15 +74,13 @@ export async function apiRequest(path, options = {}) {
       body: isFormData || typeof body === "string" ? body : body ? JSON.stringify(body) : undefined,
     });
   } catch (networkError) {
-    if (!EXPLORER_ENABLED) {
-      throw new ApiError(
-        networkError.name === "AbortError"
-          ? "The server took too long to respond."
-          : "The server is unavailable. Check your connection and try again.",
-      );
-    }
-    setApiMode("explorer");
-    return requestFromExplorer(path, options);
+    throw new ApiError(
+      networkError.name === "AbortError"
+        ? "The server took too long to respond. Please try again."
+        : "Mini Social cannot reach the server. Start the API and database, then try again.",
+      0,
+      { cause: networkError.name || "NetworkError" },
+    );
   } finally {
     window.clearTimeout(timeoutId);
   }
@@ -117,11 +101,11 @@ export async function apiRequest(path, options = {}) {
   return payload;
 }
 
-async function requestFromExplorer(path, options) {
+async function requestFromDemo(path, options) {
   try {
-    return await mockApiRequest(path, options);
+    return await demoApiRequest(path, options);
   } catch (error) {
-    if (error instanceof MockApiError) {
+    if (error instanceof DemoApiError) {
       throw new ApiError(error.message, error.status, error.details);
     }
     throw error;
