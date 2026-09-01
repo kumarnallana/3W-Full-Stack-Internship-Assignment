@@ -1,31 +1,27 @@
-import { FlaskConical, SquarePen } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
+import { SquarePen } from "lucide-react";
 import BrandMark from "../ui/BrandMark";
 
 export default function FeedHeader({ onCompose }) {
-  const { apiMode } = useAuth();
-
   return (
-    <header className="feed-header" id="feed-start">
-      <div className="feed-header__mobile-brand">
+    <header className="feed-header">
+      <div className="feed-header__mobile-brand" aria-hidden="true">
         <BrandMark compact />
       </div>
+
       <div className="feed-header__copy">
-        <p className="eyebrow">The community signal</p>
-        <h1>Fresh from the feed</h1>
-        <p>Small updates, useful ideas, and moments worth sharing.</p>
-      </div>
-      <div className="feed-header__controls">
-        {apiMode === "demo" ? (
-          <span className="mode-badge" title="This explicitly configured environment stores demo data in this browser.">
-            <FlaskConical size={14} aria-hidden="true" />
-            Demo
-          </span>
-        ) : null}
-        <button className="button button--primary feed-header__action" type="button" onClick={onCompose}>
-          <SquarePen size={18} aria-hidden="true" />
-          <span>New post</span>
-        </button>
+        <p className="eyebrow" style={{ marginBottom: '4px' }}>THE COMMUNITY FEED</p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h1 style={{ fontSize: '1.4rem', margin: 0, letterSpacing: '-0.02em' }}>Fresh from the feed</h1>
+          <button
+            className="button button--primary feed-header__action"
+            type="button"
+            onClick={onCompose}
+          >
+            <SquarePen size={16} aria-hidden="true" />
+            New post
+          </button>
+        </div>
+        <p style={{ marginTop: '8px', fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>See what's happening right now.</p>
       </div>
     </header>
   );

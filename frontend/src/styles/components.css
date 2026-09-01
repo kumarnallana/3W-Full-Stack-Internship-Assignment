@@ -10,37 +10,22 @@
 }
 
 .brand-mark__symbol {
-  width: 38px;
-  height: 38px;
+  width: 32px;
+  height: 32px;
   display: inline-flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: center;
-  gap: 3px;
-  padding: 9px 8px;
-  color: #211013;
-  background: var(--color-accent);
-  border-radius: 11px;
+  color: var(--color-primary);
+  background: transparent;
 }
-
-.brand-mark__symbol span {
-  width: 4px;
-  background: currentColor;
-  border-radius: var(--radius-pill);
-}
-
-.brand-mark__symbol span:nth-child(1) { height: 45%; }
-.brand-mark__symbol span:nth-child(2) { height: 85%; }
-.brand-mark__symbol span:nth-child(3) { height: 62%; }
 
 .brand-mark__name {
   font-size: 1.04rem;
 }
 
 .brand-mark--compact .brand-mark__symbol {
-  width: 34px;
-  height: 34px;
-  padding: 8px 7px;
-  border-radius: 10px;
+  width: 26px;
+  height: 26px;
 }
 
 .brand-mark--compact .brand-mark__name {
@@ -80,6 +65,20 @@
 
 .auth-story {
   display: none;
+}
+
+@media (min-width: 1024px) {
+  .auth-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .auth-story {
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-8) var(--space-10);
+    background: var(--color-bg-deep);
+    border-right: 1px solid var(--color-border);
+  }
 }
 
 .auth-panel {
@@ -563,33 +562,33 @@
 
 .composer {
   padding: var(--space-4);
+  transition: padding var(--transition-base), box-shadow var(--transition-base);
 }
 
-.composer__identity {
+.composer--expanded {
+  padding: var(--space-5) var(--space-4);
+  box-shadow: var(--shadow-sm);
+}
+
+.composer__input-area {
   display: flex;
-  align-items: center;
   gap: var(--space-3);
-  margin-bottom: var(--space-4);
-}
-
-.composer__identity h2 {
-  margin-bottom: 0.08rem;
-  font-size: 0.94rem;
-}
-
-.composer__identity p {
-  margin-bottom: 0;
-  color: var(--color-text-secondary);
-  font-size: 0.75rem;
+  align-items: flex-start;
 }
 
 .composer textarea {
-  min-height: 104px;
+  flex: 1;
+  min-height: 48px;
   display: block;
   resize: vertical;
-  padding: var(--space-4);
+  padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-md);
   line-height: 1.5;
+  transition: min-height var(--transition-base);
+}
+
+.composer--expanded textarea {
+  min-height: 104px;
 }
 
 .composer__preview {
@@ -686,8 +685,10 @@
 
 .post-card {
   overflow: hidden;
-  padding: var(--space-4);
+  padding: var(--space-5) var(--space-5) var(--space-4);
   transition: border-color var(--transition-base), background-color var(--transition-base);
+  border: 1px solid var(--color-border);
+  box-shadow: none;
 }
 
 .post-card:hover {
@@ -702,7 +703,7 @@
 
 .post-card__header h2 {
   margin-bottom: 0;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   letter-spacing: -0.01em;
 }
 
@@ -710,7 +711,7 @@
   display: block;
   margin-top: 0.08rem;
   color: var(--color-text-subtle);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
 }
 
 .post-card__text {
@@ -724,7 +725,7 @@
 
 .post-card__media,
 .post-card__media-fallback {
-  margin: var(--space-4) calc(var(--space-4) * -1) 0;
+  margin: var(--space-4) calc(var(--space-5) * -1) 0;
   background: var(--color-bg-deep);
   border-block: 1px solid var(--color-border);
 }
@@ -735,7 +736,7 @@
   display: block;
   padding: 0;
   color: var(--color-text);
-  background: transparent;
+  background: var(--color-bg-deep);
   border: 0;
   cursor: zoom-in;
   overflow: hidden;
@@ -744,7 +745,7 @@
 .post-card__media-button img {
   width: 100%;
   max-height: 620px;
-  object-fit: cover;
+  object-fit: contain;
   transition: transform var(--transition-medium);
 }
 
@@ -1525,11 +1526,23 @@
 
   .desktop-nav__link--active {
     color: var(--color-text);
-    background: var(--color-accent-soft);
+    background: var(--color-primary-soft);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    position: relative;
+  }
+
+  .desktop-nav__link--active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--color-primary);
   }
 
   .desktop-nav__link--active svg {
-    color: var(--color-accent);
+    color: var(--color-primary);
   }
 
   .desktop-nav__account {

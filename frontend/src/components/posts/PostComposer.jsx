@@ -17,8 +17,12 @@ const PostComposer = forwardRef(function PostComposer({ onCreate }, ref) {
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  const [isExpanded, setIsExpanded] = useState(false);
+  const formRef = useRef(null);
+
   useImperativeHandle(ref, () => ({
     focus() {
+      setIsExpanded(true);
       textareaRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       window.setTimeout(() => textareaRef.current?.focus(), 250);
     },
@@ -31,6 +35,7 @@ const PostComposer = forwardRef(function PostComposer({ onCreate }, ref) {
     }
     const nextUrl = URL.createObjectURL(image);
     setPreviewUrl(nextUrl);
+    setIsExpanded(true);
     return () => URL.revokeObjectURL(nextUrl);
   }, [image]);
 
@@ -72,6 +77,7 @@ const PostComposer = forwardRef(function PostComposer({ onCreate }, ref) {
       await onCreate({ text: trimmedText, image });
       setText("");
       removeImage();
+      setIsExpanded(false);
     } catch (requestError) {
       setError(requestError.message || "Your post could not be published. Your text is still here.");
     } finally {
@@ -79,32 +85,34 @@ const PostComposer = forwardRef(function PostComposer({ onCreate }, ref) {
     }
   }
 
+  function handleBlur(event) {
+    if (formRef.current && !formRef.current.contains(event.relatedTarget) && !text.trim() && !image) {
+      setIsExpanded(false);
+    }
+  }
+
   const displayName = getUserDisplayName(user);
 
   return (
-    <section className="composer" aria-labelledby="composer-title">
-      <div className="composer__identity">
-        <Avatar name={displayName} src={user?.avatarUrl || user?.avatar} />
-        <div>
-          <h2 id="composer-title">Share something</h2>
-          <p>Text, an image, or both.</p>
+    <section className={`composer ${isExpanded ? "composer--expanded" : ""}`} aria-labelledby="composer-title">
+      <form ref={formRef} onSubmit={handleSubmit} onBlur={handleBlur} onFocus={() => setIsExpanded(true)} aria-busy={submitting}>
+        
+        <div className="composer__input-area">
+          <Avatar name={displayName} src={user?.avatarUrl || user?.avatar} />
+          <label className="sr-only" htmlFor="post-text">What's on your mind?</label>
+          <textarea
+            ref={textareaRef}
+            id="post-text"
+            value={text}
+            maxLength={600}
+            onChange={(event) => {
+              setText(event.target.value);
+              setError("");
+            }}
+            placeholder="What's on your mind?"
+            rows={isExpanded ? 3 : 1}
+          />
         </div>
-      </div>
-
-      <form onSubmit={handleSubmit} aria-busy={submitting}>
-        <label className="sr-only" htmlFor="post-text">What's on your mind?</label>
-        <textarea
-          ref={textareaRef}
-          id="post-text"
-          value={text}
-          maxLength={600}
-          onChange={(event) => {
-            setText(event.target.value);
-            setError("");
-          }}
-          placeholder="What's on your mind?"
-          rows={3}
-        />
 
         {previewUrl ? (
           <div className="composer__preview">
@@ -117,31 +125,35 @@ const PostComposer = forwardRef(function PostComposer({ onCreate }, ref) {
 
         {error ? <p className="composer__error" role="alert">{error}</p> : null}
 
-        <div className="composer__actions">
-          <div>
-            <input
-              ref={fileInputRef}
-              className="sr-only"
-              id="post-image"
-              type="file"
-              accept={ACCEPTED_TYPES.join(",")}
-              onChange={handleImage}
-            />
-            <label className="composer__media-button" htmlFor="post-image">
-              <ImagePlus size={19} aria-hidden="true" />
-              Add image
-            </label>
-            <span className="composer__counter">{text.length}/600</span>
+        {isExpanded && (
+          <div className="composer__actions">
+            <div>
+              <input
+                ref={fileInputRef}
+                className="sr-only"
+                id="post-image"
+                type="file"
+                accept={ACCEPTED_TYPES.join(",")}
+                onChange={handleImage}
+              />
+              <label className="composer__media-button" htmlFor="post-image">
+                <ImagePlus size={19} aria-hidden="true" />
+                Add image
+              </label>
+              {text.length > 0 && (
+                <span className="composer__counter">{text.length}/600</span>
+              )}
+            </div>
+            <button
+              className="button button--primary"
+              type="submit"
+              disabled={submitting || (!text.trim() && !image)}
+            >
+              {submitting ? <LoaderCircle className="spin" size={18} aria-hidden="true" /> : <Send size={17} aria-hidden="true" />}
+              {submitting ? "Posting…" : "Post"}
+            </button>
           </div>
-          <button
-            className="button button--primary"
-            type="submit"
-            disabled={submitting || (!text.trim() && !image)}
-          >
-            {submitting ? <LoaderCircle className="spin" size={18} aria-hidden="true" /> : <Send size={17} aria-hidden="true" />}
-            {submitting ? "Posting…" : "Post"}
-          </button>
-        </div>
+        )}
       </form>
     </section>
   );
