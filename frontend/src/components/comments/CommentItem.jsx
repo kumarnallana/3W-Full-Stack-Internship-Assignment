@@ -16,7 +16,7 @@ export default function CommentItem({
 }) {
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
-  const isOwner = user?.id === comment.userId;
+  const isOwner = Boolean(user && (user.id === comment.userId || user._id === comment.userId));
 
   async function handleEditSubmit(data) {
     if (onEdit) {
@@ -48,8 +48,10 @@ export default function CommentItem({
         <div className="comment__body">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <strong>{comment.username}</strong>
-              <time dateTime={comment.createdAt}>{formatPostTime(comment.createdAt)}</time>
+              <strong>{comment.username}</strong>{" "}
+              <time dateTime={comment.createdAt} style={{ color: "var(--color-text-subtle)", fontSize: "0.8rem", marginLeft: "4px" }}>
+                {formatPostTime(comment.createdAt)}
+              </time>
               {comment.isEdited && <span className="comment__edited-badge" style={{ fontSize: '0.7rem', color: 'var(--color-text-subtle)', marginLeft: '6px' }}>(edited)</span>}
             </div>
             {isOwner && (
