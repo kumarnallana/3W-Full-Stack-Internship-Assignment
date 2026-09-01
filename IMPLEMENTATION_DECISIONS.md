@@ -10,6 +10,8 @@ The supplied TaskPlanet recordings were treated as product research. Their usefu
 - the desktop experience received dedicated navigation, width, and context behavior;
 - every password field owns its visibility state and never exposes sibling values.
 
+The assignment requires each feed item to display its author's username, but it does not request user profile pages, profile routes, bios, or clickable avatars. Those features were intentionally not invented. Post images do support a focused full-screen viewer because it directly improves consumption of the required image-post feature without changing the data model or assessment scope.
+
 ## Correctness decisions
 
 ### Authentication is never simulated implicitly
@@ -37,6 +39,8 @@ The frontend provides immediate, field-specific feedback, semantic length attrib
 ## Data architecture
 
 Only `users` and `posts` are modeled as MongoDB collections. Likes and comments are bounded subdocuments inside a post, which satisfies the assessment constraint and makes a feed read self-contained. Author usernames are stored as snapshots with interactions to preserve understandable historical feed content.
+
+The feed query is intentionally global rather than user-scoped. Account A can publish, log out, and Account B will receive Account A's post from the same `posts` collection. Only viewer-specific state, such as `viewerHasLiked`, is calculated for the currently authenticated account.
 
 Images are kept outside MongoDB. Development uses an ignored upload directory; production can use Cloudinary through the same storage service.
 

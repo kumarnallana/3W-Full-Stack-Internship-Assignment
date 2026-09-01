@@ -8,5 +8,8 @@
     "build": "pnpm --filter ./backend build && pnpm --filter ./frontend build",
     "test": "pnpm --filter ./backend test && pnpm --filter ./frontend test",
     "check": "pnpm build && pnpm test"
+  },
+  "dependencies": {
+    "mongodb": "^7.6.0"
   }
 }

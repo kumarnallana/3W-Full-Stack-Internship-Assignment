@@ -1,14 +1,16 @@
 import { useState } from "react";
-import { Heart, ImageOff, LoaderCircle, MessageCircle } from "lucide-react";
+import { Heart, ImageOff, LoaderCircle, Maximize2, MessageCircle } from "lucide-react";
 import { formatPostTime } from "../../utils/formatters";
 import Avatar from "../ui/Avatar";
 import CommentThread from "./CommentThread";
+import ImageLightbox from "./ImageLightbox";
 
 export default function PostCard({ post, onToggleLike, onAddComment }) {
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [likePending, setLikePending] = useState(false);
   const [actionError, setActionError] = useState("");
   const [mediaFailed, setMediaFailed] = useState(false);
+  const [imageOpen, setImageOpen] = useState(false);
 
   async function handleLike() {
     if (likePending) return;
@@ -43,15 +45,34 @@ export default function PostCard({ post, onToggleLike, onAddComment }) {
           </div>
         ) : (
           <div className="post-card__media">
-            <img
-              src={post.imageUrl}
-              alt={`Post shared by ${post.username}`}
-              loading="lazy"
-              decoding="async"
-              onError={() => setMediaFailed(true)}
-            />
+            <button
+              className="post-card__media-button"
+              type="button"
+              onClick={() => setImageOpen(true)}
+              aria-label={`View full-size image shared by ${post.username}`}
+            >
+              <img
+                src={post.imageUrl}
+                alt={`Post shared by ${post.username}`}
+                loading="lazy"
+                decoding="async"
+                onError={() => setMediaFailed(true)}
+              />
+              <span className="post-card__media-expand" aria-hidden="true">
+                <Maximize2 size={16} />
+                View full image
+              </span>
+            </button>
           </div>
         )
+      ) : null}
+
+      {imageOpen ? (
+        <ImageLightbox
+          imageUrl={post.imageUrl}
+          username={post.username}
+          onClose={() => setImageOpen(false)}
+        />
       ) : null}
 
       <div className="post-card__summary" aria-label={`${post.likeCount} likes and ${post.commentCount} comments`}>

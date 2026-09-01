@@ -12,7 +12,9 @@ The important correctness rule is simple: **a network failure never becomes a su
 - bcrypt password hashing; plaintext passwords are never stored.
 - JWT authentication through an HTTP-only cookie; the real client never stores the token in browser storage.
 - Protected public feed with pagination.
+- Cross-account visibility: a post created by one account remains visible when another account logs in.
 - Text-only, image-only, and text-plus-image posts.
+- Click-to-open full-screen post images with uncropped responsive containment.
 - Persistent likes and embedded comments with immediate UI updates.
 - Local development image storage and optional Cloudinary production storage.
 - Explicit demo environment with verified credentials and local browser persistence.
@@ -151,6 +153,7 @@ The targeted tests cover:
 - text-only/image-only post schema behavior;
 - rejection of empty posts;
 - enforcement of the two-collection data model.
+- preservation of Account A's post in Account B's public-feed response.
 
 The completed UI was also exercised through the browser at 360px, 390px, 768px, and 1440px. The verified journey includes login, independent password visibility, feed loading, post creation, like/unlike, comments, refresh persistence, and real-mode API failure behavior.
 
@@ -158,6 +161,7 @@ The completed UI was also exercised through the browser at 360px, 390px, 768px, 
 
 - TaskPlanet was treated as behavioral inspiration, not a visual template.
 - WhatsApp integration and unrelated social-network features remain out of scope.
+- Standalone user profile pages remain out of scope because the assignment requires usernames on posts, not profile routes or profile management.
 - Mobile bottom navigation is used only at compact widths; desktop receives a proper side navigation and context rail.
 - The dark visual system is restrained and content-led rather than relying on blanket glassmorphism or glow effects.
 - The older automatic Offline Explorer behavior was removed because it could conceal backend failures and invalidate an assessment demo.

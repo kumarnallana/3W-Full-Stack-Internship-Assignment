@@ -722,10 +722,51 @@
   border-block: 1px solid var(--color-border);
 }
 
-.post-card__media img {
+.post-card__media-button {
+  width: 100%;
+  position: relative;
+  display: block;
+  padding: 0;
+  color: var(--color-text);
+  background: transparent;
+  border: 0;
+  cursor: zoom-in;
+  overflow: hidden;
+}
+
+.post-card__media-button img {
   width: 100%;
   max-height: 620px;
   object-fit: cover;
+  transition: transform var(--transition-medium);
+}
+
+.post-card__media-expand {
+  min-height: 34px;
+  position: absolute;
+  right: var(--space-3);
+  bottom: var(--space-3);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.58rem;
+  color: #fff;
+  background: rgb(6 9 13 / 0.78);
+  border: 1px solid rgb(255 255 255 / 0.16);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-sm);
+  font-size: 0.67rem;
+  font-weight: 700;
+  backdrop-filter: blur(8px);
+}
+
+.post-card__media-button:hover img {
+  transform: scale(1.01);
+}
+
+.post-card__media-button:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: -3px;
 }
 
 .post-card__media-fallback {
@@ -736,6 +777,71 @@
   gap: var(--space-3);
   color: var(--color-text-secondary);
   font-size: 0.8rem;
+}
+
+.image-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding:
+    max(var(--space-4), env(safe-area-inset-top))
+    max(var(--space-4), env(safe-area-inset-right))
+    max(var(--space-4), env(safe-area-inset-bottom))
+    max(var(--space-4), env(safe-area-inset-left));
+  background: rgb(3 6 10 / 0.94);
+  backdrop-filter: blur(10px);
+  animation: lightbox-in var(--transition-medium) both;
+}
+
+.image-lightbox__content {
+  width: min(100%, 1500px);
+  height: calc(100dvh - 2 * var(--space-6));
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  justify-items: center;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.image-lightbox__content img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: var(--radius-sm);
+  box-shadow: 0 24px 70px rgb(0 0 0 / 0.52);
+}
+
+.image-lightbox__content figcaption {
+  color: rgb(231 235 241 / 0.78);
+  font-size: 0.76rem;
+}
+
+.image-lightbox__close {
+  width: 44px;
+  height: 44px;
+  position: fixed;
+  top: max(var(--space-4), env(safe-area-inset-top));
+  right: max(var(--space-4), env(safe-area-inset-right));
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  color: #fff;
+  background: rgb(22 28 38 / 0.88);
+  border: 1px solid rgb(255 255 255 / 0.18);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.image-lightbox__close:hover {
+  background: rgb(40 48 61 / 0.94);
+}
+
+@keyframes lightbox-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .post-card__summary {
