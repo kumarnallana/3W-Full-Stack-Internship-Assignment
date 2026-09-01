@@ -18,12 +18,12 @@ The assignment requires each feed item to display its author's username, but it 
 
 The earlier frontend changed to mock behavior after a failed request and accepted any non-empty password. That combination made an unavailable backend look like successful authentication.
 
-The replacement has two explicit modes:
+The replacement has two visible modes:
 
 - `real` is the default and only talks to the Express API;
 - `demo` must be configured before Vite starts and uses a visibly labelled local environment.
 
-A runtime network failure does not change modes. Signup enforces the full password policy in both modes. Login accepts any non-empty password as an attempt and then verifies the actual credential; it does not incorrectly reuse signup-strength validation. Demo mode compares a digest of the submitted password against the selected demo account instead of accepting arbitrary credentials.
+Demo may also activate when real mode cannot receive any HTTP response because of a network failure, unreachable backend, or timeout. HTTP 400/401/403/409/500 responses never activate it. Signup enforces the full password policy in both modes. Login accepts any non-empty password as an attempt and then verifies the actual credential; it does not incorrectly reuse signup-strength validation. Demo mode compares a digest of the submitted password against the selected demo account instead of accepting arbitrary credentials.
 
 ### Validation is defense in depth
 
@@ -67,7 +67,7 @@ The visual hierarchy remains intentionally restrained:
 - Images keep their aspect ratio and fail gracefully.
 - Mobile, tablet, and desktop layouts have no horizontal overflow.
 - API, validation, and content errors remain visible without destroying the layout.
-- Demo mode is explicit, labelled, credential-aware, and never a network-error fallback.
+- Demo mode is labelled and credential-aware; automatic entry is limited to network failure, an unreachable backend, or timeout.
 - Replies retain their target context while remaining one level deep.
 - Mention suggestions support keyboard and touch input and store validated user identities.
 - Notifications are future work because the assessment architecture has no notification collection or delivery channel.

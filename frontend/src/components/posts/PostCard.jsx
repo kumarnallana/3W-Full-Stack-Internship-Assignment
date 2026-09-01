@@ -75,7 +75,7 @@ export default function PostCard({ post, onToggleLike, onAddComment }) {
         />
       ) : null}
 
-      <div className="post-card__summary" aria-label={`${post.likeCount} likes and ${post.commentCount} comments`}>
+      <div className="post-card__summary" aria-label={`${post.likeCount} likes and ${post.commentCount} comments`} aria-live="polite">
         <span>{post.likeCount} {post.likeCount === 1 ? "like" : "likes"}</span>
         <button type="button" onClick={() => setCommentsOpen((open) => !open)}>
           {post.commentCount} {post.commentCount === 1 ? "comment" : "comments"}

@@ -2,7 +2,7 @@
 
 Mini Social is a complete React, Express, and MongoDB social-post application. It keeps the assessment scope focused—authentication, posts, images, likes, and comments—while providing an original mobile-first interface and honest runtime behavior.
 
-The important correctness rule is simple: **a network failure never becomes a successful login**. Real mode uses only the Express/MongoDB API. A separate browser-only demo is available only when `VITE_APP_MODE=demo` is explicitly configured.
+The important correctness rule is simple: **an API rejection never becomes a successful login**. Real mode uses the Express/MongoDB API. Only a genuine network failure, unreachable backend, or timeout can move the browser into the clearly labelled local demo, where credentials are still verified exactly.
 
 ## Delivered product
 
@@ -90,7 +90,7 @@ pnpm dev
 - API: `http://localhost:5000/api`
 - Health check: `http://localhost:5000/api/health`
 
-The frontend defaults to `VITE_APP_MODE=real`. If the API or MongoDB is not available, it shows a connection error and remains unauthenticated.
+The frontend defaults to `VITE_APP_MODE=real`. HTTP responses—including 400, 401, 403, 409, and 500—remain real errors. If no HTTP response is possible because the API is unreachable or times out, the browser enters the labelled Explorer/demo environment and requires valid demo credentials.
 
 ## Run the explicit demo
 
@@ -168,7 +168,7 @@ The completed UI was also exercised through the browser at 360px, 390px, 430px, 
 - Standalone user profile pages remain out of scope because the assignment requires usernames on posts, not profile routes or profile management.
 - Mobile bottom navigation is used only at compact widths; desktop receives a proper side navigation and context rail.
 - The dark visual system is restrained and content-led rather than relying on blanket glassmorphism or glow effects.
-- The older automatic Offline Explorer behavior was removed because it could conceal backend failures and invalidate an assessment demo.
+- Explorer fallback is restricted to connection failures and timeouts. It never intercepts a real HTTP rejection, and the resulting demo environment remains visibly labelled and credential-aware.
 - Mention/reply notifications remain future work. The current two-collection assessment architecture has no notification delivery model, and adding one would expand scope beyond the requested social-feed behavior.
 
 See [IMPLEMENTATION_DECISIONS.md](./IMPLEMENTATION_DECISIONS.md) for the implementation rationale and acceptance criteria.

@@ -36,7 +36,13 @@ export default function CommentThread({ comments, onAddComment, inputId }) {
 
   return (
     <div className="comment-thread">
-      <div className="comment-thread__list">
+      <div
+        className="comment-thread__list"
+        role="log"
+        aria-label="Comments and replies"
+        aria-live="polite"
+        aria-relevant="additions"
+      >
         {comments.length ? (
           roots.map((comment) => (
             <div className="comment-thread__conversation" key={comment.id}>

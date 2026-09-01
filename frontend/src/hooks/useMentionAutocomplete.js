@@ -78,7 +78,7 @@ export function useMentionAutocomplete({ initialText = "", initialMentions = [] 
       event.preventDefault();
       const direction = event.key === "ArrowDown" ? 1 : -1;
       setActiveIndex((current) => (current + direction + suggestions.length) % suggestions.length);
-    } else if (event.key === "Enter") {
+    } else if (event.key === "Enter" || event.key === "Tab") {
       event.preventDefault();
       selectMention(suggestions[activeIndex]);
     }

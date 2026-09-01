@@ -1,6 +1,13 @@
+import { useEffect, useRef } from "react";
 import Avatar from "../ui/Avatar";
 
 export default function MentionSuggestions({ id, suggestions, activeIndex, loading, onSelect }) {
+  const activeOptionRef = useRef(null);
+
+  useEffect(() => {
+    activeOptionRef.current?.scrollIntoView({ block: "nearest" });
+  }, [activeIndex]);
+
   return (
     <div className="mention-suggestions" id={id} role="listbox" aria-label="People you can mention">
       {loading ? <p className="mention-suggestions__status">Finding people…</p> : null}
@@ -12,6 +19,7 @@ export default function MentionSuggestions({ id, suggestions, activeIndex, loadi
           className={index === activeIndex ? "is-active" : ""}
           id={`${id}-${user.id}`}
           key={user.id}
+          ref={index === activeIndex ? activeOptionRef : null}
           type="button"
           role="option"
           aria-selected={index === activeIndex}

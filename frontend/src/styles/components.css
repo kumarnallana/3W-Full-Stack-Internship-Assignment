@@ -716,8 +716,8 @@
 .post-card__text {
   margin: var(--space-4) 0 0;
   color: #e7ebf1;
-  font-size: 0.94rem;
-  line-height: 1.58;
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
@@ -928,14 +928,26 @@
 
 .comment-thread__list {
   display: grid;
-  gap: var(--space-4);
+  gap: var(--space-3);
 }
 
-.comment-thread__conversation,
+.comment-thread__conversation {
+  display: grid;
+  gap: var(--space-2);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.comment-thread__conversation:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
 .comment-thread__item {
   min-width: 0;
   display: grid;
   gap: var(--space-2);
+  animation: comment-enter var(--transition-base) both;
 }
 
 .comment {
@@ -969,10 +981,9 @@
 
 .comment__body {
   min-width: 0;
-  padding: 0.72rem 0.8rem;
-  background: var(--color-surface-raised);
-  border: 1px solid rgb(255 255 255 / 0.025);
-  border-radius: 0 var(--radius-sm) var(--radius-sm) var(--radius-sm);
+  padding: 0.15rem 0;
+  background: transparent;
+  border: 0;
 }
 
 .comment__body > div {
@@ -982,7 +993,7 @@
 }
 
 .comment__body strong {
-  font-size: 0.75rem;
+  font-size: var(--font-size-small);
 }
 
 .comment__body time {
@@ -994,8 +1005,8 @@
 .comment__body p {
   margin: 0.2rem 0 0;
   color: #dfe4eb;
-  font-size: 0.8rem;
-  line-height: 1.46;
+  font-size: var(--font-size-small);
+  line-height: 1.5;
   overflow-wrap: anywhere;
 }
 
@@ -1012,7 +1023,7 @@
 }
 
 .comment__reply-action {
-  min-height: 36px;
+  min-height: var(--control-height-compact);
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
@@ -1089,14 +1100,14 @@
 }
 
 .comment-thread__form input {
-  min-height: 46px;
+  min-height: var(--control-height);
   padding: 0.7rem 3.2rem 0.7rem 0.82rem;
   border-radius: var(--radius-sm);
 }
 
 .comment-thread__send {
-  width: 40px;
-  height: 40px;
+  width: var(--control-height-compact);
+  height: var(--control-height-compact);
   position: absolute;
   right: 3px;
   top: 3px;
@@ -1116,7 +1127,7 @@
 
 .mention-suggestions {
   width: min(100%, 330px);
-  max-height: 236px;
+  max-height: min(236px, 40vh);
   position: absolute;
   bottom: calc(100% + 0.4rem);
   left: 0;
@@ -1180,6 +1191,13 @@
   color: var(--color-text-secondary);
   font-size: 0.72rem;
   text-align: center;
+}
+
+@keyframes comment-enter {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
 }
 
 .comment-thread__error {

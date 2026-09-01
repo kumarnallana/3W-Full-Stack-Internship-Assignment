@@ -3,6 +3,8 @@ import { demoApiRequest, DemoApiError } from "./demoApi";
 
 const DEFAULT_API_BASE_URL = "http://localhost:5000/api";
 const REQUEST_TIMEOUT_MS = 8000;
+let activeApiMode = APP_MODE;
+const apiModeListeners = new Set();
 
 export const API_BASE_URL = (
   import.meta.env.VITE_API_BASE_URL || DEFAULT_API_BASE_URL
@@ -18,7 +20,18 @@ export class ApiError extends Error {
 }
 
 export function getApiMode() {
-  return APP_MODE;
+  return activeApiMode;
+}
+
+export function subscribeApiMode(listener) {
+  apiModeListeners.add(listener);
+  return () => apiModeListeners.delete(listener);
+}
+
+function setApiMode(nextMode) {
+  if (activeApiMode === nextMode) return;
+  activeApiMode = nextMode;
+  apiModeListeners.forEach((listener) => listener(nextMode));
 }
 
 export function unwrapData(payload) {
@@ -35,7 +48,7 @@ function getErrorMessage(payload, fallback) {
 }
 
 export async function apiRequest(path, options = {}) {
-  if (APP_MODE === "demo") {
+  if (activeApiMode === "demo") {
     return requestFromDemo(path, options);
   }
 
@@ -59,13 +72,8 @@ export async function apiRequest(path, options = {}) {
       body: isFormData || typeof body === "string" ? body : body ? JSON.stringify(body) : undefined,
     });
   } catch (networkError) {
-    throw new ApiError(
-      networkError.name === "AbortError"
-        ? "The server took too long to respond. Please try again."
-        : "Mini Social cannot reach the server. Start the API and database, then try again.",
-      0,
-      { cause: networkError.name || "NetworkError" },
-    );
+    setApiMode("demo");
+    return requestFromDemo(path, options);
   } finally {
     window.clearTimeout(timeoutId);
   }

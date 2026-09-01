@@ -51,6 +51,7 @@ export default function LoginPage() {
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (submitting) return;
     if (!validate()) return;
     setSubmitting(true);
     setError("");

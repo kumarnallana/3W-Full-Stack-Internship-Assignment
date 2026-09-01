@@ -58,6 +58,7 @@ const PostComposer = forwardRef(function PostComposer({ onCreate }, ref) {
 
   async function handleSubmit(event) {
     event.preventDefault();
+    if (submitting) return;
     const trimmedText = text.trim();
     if (!trimmedText && !image) {
       setError("Add some text or choose an image before posting.");
@@ -90,7 +91,7 @@ const PostComposer = forwardRef(function PostComposer({ onCreate }, ref) {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} aria-busy={submitting}>
         <label className="sr-only" htmlFor="post-text">What's on your mind?</label>
         <textarea
           ref={textareaRef}

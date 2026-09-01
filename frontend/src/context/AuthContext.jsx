@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { authApi } from "../services/authApi";
-import { getApiMode } from "../services/apiClient";
+import { getApiMode, subscribeApiMode } from "../services/apiClient";
 
 const AuthContext = createContext(null);
 let sessionBootstrap;
@@ -18,7 +18,9 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [status, setStatus] = useState("checking");
   const [sessionError, setSessionError] = useState("");
-  const apiMode = getApiMode();
+  const [apiMode, setApiMode] = useState(getApiMode);
+
+  useEffect(() => subscribeApiMode(setApiMode), []);
 
   useEffect(() => {
     let active = true;
