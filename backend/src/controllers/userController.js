@@ -23,3 +23,38 @@ export async function searchUsers(request, response) {
     },
   });
 }
+
+export async function getNotifications(request, response) {
+  const user = await User.findById(request.user._id).select("+notifications").lean();
+  if (!user) {
+    const error = new Error("User not found.");
+    error.status = 404;
+    throw error;
+  }
+  
+  // Sort notifications by newest first
+  const notifications = (user.notifications || []).sort((a, b) => b.createdAt - a.createdAt);
+  
+  response.json({
+    data: {
+      notifications: notifications.map((n) => ({
+        id: String(n._id),
+        type: n.type,
+        actorUsername: n.actorUsername,
+        postId: String(n.postId),
+        commentId: String(n.commentId),
+        read: n.read,
+        createdAt: n.createdAt,
+      })),
+      unreadCount: notifications.filter((n) => !n.read).length,
+    },
+  });
+}
+
+export async function markNotificationsRead(request, response) {
+  await User.updateOne(
+    { _id: request.user._id },
+    { $set: { "notifications.$[].read": true } }
+  );
+  response.json({ data: { success: true } });
+}

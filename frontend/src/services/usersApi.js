@@ -10,4 +10,12 @@ export const usersApi = {
       username: user.username,
     }));
   },
+  
+  async getNotifications() {
+    return unwrapData(await apiRequest("/users/notifications"));
+  },
+  
+  async markNotificationsRead() {
+    return unwrapData(await apiRequest("/users/notifications/read", { method: "POST" }));
+  }
 };

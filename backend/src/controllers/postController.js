@@ -168,6 +168,57 @@ export async function addComment(request, response) {
   });
   await post.save();
   const comment = post.comments.at(-1);
+
+  const currentUserId = String(request.user._id);
+  const notificationsToCreate = [];
+
+  for (const mention of mentions) {
+    if (String(mention.userId) !== currentUserId) {
+      notificationsToCreate.push({
+        userId: mention.userId,
+        notification: {
+          type: "mention",
+          actorUsername: request.user.username,
+          postId: post._id,
+          commentId: comment._id,
+        },
+      });
+    }
+  }
+
+  if (replyTarget && replyTarget.userId) {
+    const replyUserIdStr = String(replyTarget.userId);
+    const alreadyNotified = notificationsToCreate.some((n) => String(n.userId) === replyUserIdStr);
+    if (replyUserIdStr !== currentUserId && !alreadyNotified) {
+      notificationsToCreate.push({
+        userId: replyTarget.userId,
+        notification: {
+          type: "reply",
+          actorUsername: request.user.username,
+          postId: post._id,
+          commentId: comment._id,
+        },
+      });
+    }
+  }
+
+  if (notificationsToCreate.length > 0) {
+    const bulkOps = notificationsToCreate.map((n) => ({
+      updateOne: {
+        filter: { _id: n.userId },
+        update: {
+          $push: {
+            notifications: {
+              $each: [n.notification],
+              $slice: -50,
+            },
+          },
+        },
+      },
+    }));
+    await User.bulkWrite(bulkOps).catch((err) => console.error("Notification error:", err));
+  }
+
   response.status(201).json({
     data: {
       post: serializePost(post, request.user._id),
