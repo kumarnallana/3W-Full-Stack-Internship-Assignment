@@ -6,9 +6,9 @@ import {
   validateSignupInput,
 } from "../src/utils/validation.js";
 
-test("login rejects the one-character password that previously passed", () => {
-  const errors = validateLoginInput({ email: "person@example.com", password: "a" });
-  assert.match(errors.password, /at least 8/);
+test("login accepts a non-empty password for credential verification", () => {
+  assert.deepEqual(validateLoginInput({ email: "person@example.com", password: "a" }), {});
+  assert.equal(validateLoginInput({ email: "person@example.com", password: "" }).password, "Enter your password.");
 });
 
 test("email normalization is stable before persistence and lookup", () => {
@@ -19,6 +19,11 @@ test("valid signup data passes server validation", () => {
   assert.deepEqual(validateSignupInput({
     username: "Kumar",
     email: "kumar@example.com",
-    password: "secure-passphrase",
+    password: "secure-passphrase1",
   }), {});
+});
+
+test("signup requires a password containing at least one letter and one number", () => {
+  assert.match(validateSignupInput({ username: "Kumar", email: "kumar@example.com", password: "abcdefgh" }).password, /one number/);
+  assert.match(validateSignupInput({ username: "Kumar", email: "kumar@example.com", password: "12345678" }).password, /one letter/);
 });

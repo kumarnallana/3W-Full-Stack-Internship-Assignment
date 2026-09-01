@@ -8,6 +8,7 @@ import { env } from "./config/env.js";
 import { errorHandler, notFound } from "./middleware/errors.js";
 import { authRouter } from "./routes/authRoutes.js";
 import { postRouter } from "./routes/postRoutes.js";
+import { userRouter } from "./routes/userRoutes.js";
 import { uploadsDirectory } from "./services/imageStorage.js";
 
 export function createApp() {
@@ -45,6 +46,7 @@ export function createApp() {
   });
   app.use("/api/auth", authRouter);
   app.use("/api/posts", postRouter);
+  app.use("/api/users", userRouter);
   app.use(notFound);
   app.use(errorHandler);
   return app;

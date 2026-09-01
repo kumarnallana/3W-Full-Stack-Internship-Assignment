@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { Post } from "../models/Post.js";
+import { User } from "../models/User.js";
 import { storePostImage } from "../services/imageStorage.js";
 import { CONTENT_LIMITS } from "../utils/validation.js";
 
@@ -17,7 +18,24 @@ function validatePostId(postId) {
   }
 }
 
-function serializePost(post, viewerId) {
+function serializeComment(comment) {
+  return {
+    _id: String(comment._id),
+    userId: String(comment.userId),
+    username: comment.username,
+    text: comment.text,
+    createdAt: comment.createdAt,
+    parentCommentId: comment.parentCommentId ? String(comment.parentCommentId) : null,
+    replyToUserId: comment.replyToUserId ? String(comment.replyToUserId) : null,
+    replyToUsername: comment.replyToUsername || "",
+    mentions: (comment.mentions || []).map((mention) => ({
+      userId: String(mention.userId),
+      username: mention.username,
+    })),
+  };
+}
+
+export function serializePost(post, viewerId) {
   const raw = post.toObject ? post.toObject() : post;
   const viewerKey = String(viewerId);
   return {
@@ -33,13 +51,7 @@ function serializePost(post, viewerId) {
     likeCount: raw.likes.length,
     commentCount: raw.comments.length,
     viewerHasLiked: raw.likes.some((like) => String(like.userId) === viewerKey),
-    comments: raw.comments.map((comment) => ({
-      _id: String(comment._id),
-      userId: String(comment.userId),
-      username: comment.username,
-      text: comment.text,
-      createdAt: comment.createdAt,
-    })),
+    comments: raw.comments.map(serializeComment),
   };
 }
 
@@ -109,23 +121,57 @@ export async function addComment(request, response) {
   }
 
   const post = await requirePost(request.params.postId);
+  const requestedParentId = request.body?.parentCommentId
+    ? String(request.body.parentCommentId)
+    : "";
+  let replyTarget = null;
+  let rootParentId = null;
+  if (requestedParentId) {
+    if (!mongoose.isValidObjectId(requestedParentId)) {
+      throw badRequest("The comment you are replying to is invalid.");
+    }
+    replyTarget = post.comments.id(requestedParentId);
+    if (!replyTarget) {
+      const error = new Error("The comment you are replying to is no longer available.");
+      error.status = 404;
+      throw error;
+    }
+    rootParentId = replyTarget.parentCommentId || replyTarget._id;
+  }
+
+  const rawMentionIds = request.body?.mentionUserIds ?? [];
+  if (!Array.isArray(rawMentionIds) || rawMentionIds.length > 8) {
+    throw badRequest("Choose no more than 8 people to mention.");
+  }
+  const mentionIds = [...new Set(rawMentionIds.map(String))];
+  if (mentionIds.some((userId) => !mongoose.isValidObjectId(userId))) {
+    throw badRequest("One or more mentioned users are invalid.");
+  }
+  const mentionedUsers = mentionIds.length
+    ? await User.find({ _id: { $in: mentionIds } }).select("username").lean()
+    : [];
+  if (mentionedUsers.length !== mentionIds.length) {
+    throw badRequest("One or more mentioned users are no longer available.");
+  }
+  const mentions = mentionedUsers
+    .filter((user) => text.includes(`@${String(user.username).trim().replace(/\s+/g, "_")}`))
+    .map((user) => ({ userId: user._id, username: user.username }));
+
   post.comments.push({
     userId: request.user._id,
     username: request.user.username,
     text,
+    parentCommentId: rootParentId,
+    replyToUserId: replyTarget?.userId || null,
+    replyToUsername: replyTarget?.username || "",
+    mentions,
   });
   await post.save();
   const comment = post.comments.at(-1);
   response.status(201).json({
     data: {
       post: serializePost(post, request.user._id),
-      comment: {
-        _id: String(comment._id),
-        userId: String(comment.userId),
-        username: comment.username,
-        text: comment.text,
-        createdAt: comment.createdAt,
-      },
+      comment: serializeComment(comment),
     },
   });
 }

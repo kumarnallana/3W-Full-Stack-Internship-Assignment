@@ -24,3 +24,23 @@ test("post schema rejects a post with neither text nor image", async () => {
   const post = new Post({ author: { userId, username: "Kumar" } });
   await assert.rejects(post.validate(), /requires text, an image, or both/i);
 });
+
+test("comments store reply context and canonical mention identities inside the post", async () => {
+  const mentionedUserId = "507f191e810c19729de860ea";
+  const post = new Post({
+    author: { userId, username: "Kumar" },
+    text: "A post",
+    comments: [{
+      userId,
+      username: "Kumar",
+      text: "Hello @Mira_Sen",
+      replyToUserId: mentionedUserId,
+      replyToUsername: "Mira Sen",
+      mentions: [{ userId: mentionedUserId, username: "Mira Sen" }],
+    }],
+  });
+  await post.validate();
+  assert.equal(post.comments[0].replyToUsername, "Mira Sen");
+  assert.equal(String(post.comments[0].mentions[0].userId), mentionedUserId);
+  assert.equal(Post.collection.collectionName, "posts");
+});

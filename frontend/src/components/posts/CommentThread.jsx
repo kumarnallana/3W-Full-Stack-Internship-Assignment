@@ -1,47 +1,47 @@
-import { useState } from "react";
-import { LoaderCircle, Send } from "lucide-react";
-import { formatPostTime } from "../../utils/formatters";
-import Avatar from "../ui/Avatar";
+import { useMemo, useState } from "react";
+import CommentComposer from "../comments/CommentComposer";
+import CommentItem from "../comments/CommentItem";
 
 export default function CommentThread({ comments, onAddComment, inputId }) {
-  const [text, setText] = useState("");
-  const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+  const [replyTarget, setReplyTarget] = useState(null);
+  const { roots, repliesByRoot } = useMemo(() => {
+    const ids = new Set(comments.map((comment) => comment.id));
+    const rootComments = comments.filter((comment) => !comment.parentCommentId || !ids.has(comment.parentCommentId));
+    const grouped = new Map();
+    comments.forEach((comment) => {
+      if (!comment.parentCommentId || !ids.has(comment.parentCommentId)) return;
+      const current = grouped.get(comment.parentCommentId) || [];
+      current.push(comment);
+      grouped.set(comment.parentCommentId, current);
+    });
+    return { roots: rootComments, repliesByRoot: grouped };
+  }, [comments]);
 
-  async function handleSubmit(event) {
-    event.preventDefault();
-    const trimmed = text.trim();
-    if (!trimmed) {
-      setError("Write a comment before sending.");
-      return;
-    }
-
-    setSubmitting(true);
-    setError("");
-    try {
-      await onAddComment(trimmed);
-      setText("");
-    } catch (requestError) {
-      setError(requestError.message || "Your comment could not be added.");
-    } finally {
-      setSubmitting(false);
-    }
+  function renderComment(comment, isReply = false) {
+    return (
+      <div className="comment-thread__item" key={comment.id}>
+        <CommentItem comment={comment} isReply={isReply} onReply={setReplyTarget} />
+        {replyTarget?.id === comment.id ? (
+          <CommentComposer
+            key={`reply-${comment.id}`}
+            inputId={`${inputId}-reply-${comment.id}`}
+            replyTarget={comment}
+            onSubmit={onAddComment}
+            onCancel={() => setReplyTarget(null)}
+          />
+        ) : null}
+      </div>
+    );
   }
 
   return (
     <div className="comment-thread">
       <div className="comment-thread__list">
         {comments.length ? (
-          comments.map((comment) => (
-            <div className="comment" key={comment.id}>
-              <Avatar name={comment.username} src={comment.avatarUrl} size="small" />
-              <div className="comment__body">
-                <div>
-                  <strong>{comment.username}</strong>
-                  <time dateTime={comment.createdAt}>{formatPostTime(comment.createdAt)}</time>
-                </div>
-                <p>{comment.text}</p>
-              </div>
+          roots.map((comment) => (
+            <div className="comment-thread__conversation" key={comment.id}>
+              {renderComment(comment)}
+              {(repliesByRoot.get(comment.id) || []).map((reply) => renderComment(reply, true))}
             </div>
           ))
         ) : (
@@ -49,23 +49,7 @@ export default function CommentThread({ comments, onAddComment, inputId }) {
         )}
       </div>
 
-      <form className="comment-thread__form" onSubmit={handleSubmit}>
-        <label className="sr-only" htmlFor={inputId}>Write a comment</label>
-        <input
-          id={inputId}
-          value={text}
-          onChange={(event) => {
-            setText(event.target.value);
-            setError("");
-          }}
-          placeholder="Write a comment…"
-          maxLength={400}
-        />
-        <button type="submit" disabled={submitting || !text.trim()} aria-label="Send comment">
-          {submitting ? <LoaderCircle className="spin" size={18} /> : <Send size={18} />}
-        </button>
-      </form>
-      {error ? <p className="comment-thread__error" role="alert">{error}</p> : null}
+      <CommentComposer inputId={inputId} onSubmit={onAddComment} />
     </div>
   );
 }

@@ -105,7 +105,7 @@ export default function PostCard({ post, onToggleLike, onAddComment }) {
         <CommentThread
           comments={post.comments}
           inputId={`comment-${post.id}`}
-          onAddComment={(text) => onAddComment(post.id, text)}
+          onAddComment={(comment) => onAddComment(post.id, comment)}
         />
       ) : null}
     </article>

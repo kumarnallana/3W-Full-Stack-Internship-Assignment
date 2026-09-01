@@ -132,6 +132,7 @@ export default function SignupPage() {
             error={errors.password}
             autoComplete="new-password"
             inputRef={fieldRefs.password}
+            helper="Use 8–64 characters with at least one letter and one number."
             onBlur={() => validateField("password")}
           />
           <PasswordField

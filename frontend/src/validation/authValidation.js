@@ -19,8 +19,8 @@ export function validateLogin(values = {}) {
   if (!EMAIL_PATTERN.test(email) || email.length > 254) {
     errors.email = "Enter a valid email address.";
   }
-  if (password.length < AUTH_RULES.passwordMin) {
-    errors.password = `Use at least ${AUTH_RULES.passwordMin} characters.`;
+  if (!password) {
+    errors.password = "Enter your password.";
   } else if (password.length > AUTH_RULES.passwordMax) {
     errors.password = `Use no more than ${AUTH_RULES.passwordMax} characters.`;
   }
@@ -36,7 +36,17 @@ export function validateSignup(values = {}) {
   } else if (username.length > AUTH_RULES.usernameMax) {
     errors.username = `Use no more than ${AUTH_RULES.usernameMax} characters.`;
   }
-  if (values.password !== values.confirmPassword) {
+  const password = typeof values.password === "string" ? values.password : "";
+  if (password && (
+    password.length < AUTH_RULES.passwordMin ||
+    !/[A-Za-z]/.test(password) ||
+    !/\d/.test(password)
+  )) {
+    errors.password = `Use ${AUTH_RULES.passwordMin}–${AUTH_RULES.passwordMax} characters with at least one letter and one number.`;
+  }
+  if (!values.confirmPassword) {
+    errors.confirmPassword = "Confirm your password.";
+  } else if (password !== values.confirmPassword) {
     errors.confirmPassword = "The passwords do not match.";
   }
   return errors;

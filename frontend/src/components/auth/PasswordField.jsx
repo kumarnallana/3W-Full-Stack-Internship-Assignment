@@ -13,6 +13,7 @@ export default function PasswordField({
   minLength = 8,
   maxLength = 64,
   onBlur,
+  helper,
 }) {
   const [visible, setVisible] = useState(false);
 
@@ -33,7 +34,7 @@ export default function PasswordField({
           maxLength={maxLength}
           onBlur={onBlur}
           aria-invalid={Boolean(error)}
-          aria-describedby={error ? `${id}-error` : undefined}
+          aria-describedby={error ? `${id}-error` : helper ? `${id}-helper` : undefined}
           required
         />
         <button
@@ -51,7 +52,7 @@ export default function PasswordField({
         <p className="field__error" id={`${id}-error`}>
           {error}
         </p>
-      ) : null}
+      ) : helper ? <p className="field__helper" id={`${id}-helper`}>{helper}</p> : null}
     </div>
   );
 }

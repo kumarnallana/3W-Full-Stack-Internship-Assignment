@@ -7,7 +7,7 @@ The important correctness rule is simple: **a network failure never becomes a su
 ## Delivered product
 
 - Account creation and login with matching frontend and server validation.
-- Minimum 8-character and maximum 64-character passwords.
+- Signup passwords use 8–64 characters with at least one letter and one number; login verifies any non-empty submitted password against the stored hash.
 - Independent show/hide control for every password field.
 - bcrypt password hashing; plaintext passwords are never stored.
 - JWT authentication through an HTTP-only cookie; the real client never stores the token in browser storage.
@@ -15,7 +15,8 @@ The important correctness rule is simple: **a network failure never becomes a su
 - Cross-account visibility: a post created by one account remains visible when another account logs in.
 - Text-only, image-only, and text-plus-image posts.
 - Click-to-open full-screen post images with uncropped responsive containment.
-- Persistent likes and embedded comments with immediate UI updates.
+- Persistent likes and embedded comments with one-level replies, reply context, and immediate UI updates.
+- ID-backed `@mention` autocomplete with keyboard and touch selection; usernames are resolved by the server rather than trusted from the client.
 - Local development image storage and optional Cloudinary production storage.
 - Explicit demo environment with verified credentials and local browser persistence.
 - Loading, empty, error, retry, upload, and optimistic-update states.
@@ -28,10 +29,10 @@ The important correctness rule is simple: **a network failure never becomes a su
 ├── backend/
 │   ├── src/
 │   │   ├── config/       # environment and MongoDB connection
-│   │   ├── controllers/  # authentication and post use cases
+│   │   ├── controllers/  # authentication, post, and user-search use cases
 │   │   ├── middleware/   # auth, uploads, errors, async boundaries
 │   │   ├── models/       # User and Post—the only two collections
-│   │   ├── routes/       # /api/auth and /api/posts
+│   │   ├── routes/       # /api/auth, /api/posts, and /api/users
 │   │   ├── services/     # local/Cloudinary image persistence
 │   │   └── utils/        # password/session and validation rules
 │   └── test/
@@ -105,7 +106,7 @@ Then run only the frontend:
 pnpm --filter ./frontend dev
 ```
 
-Use the **Use the verified demo account** button on the login page. Demo login still verifies the supplied email and password; incorrect or short passwords fail. Demo accounts, posts, likes, and comments are isolated to browser storage and are clearly labelled `Demo` in the interface.
+Use the **Use the verified demo account** button on the login page. Demo login still verifies the supplied email and password; incorrect credentials fail. Login intentionally does not reuse signup strength rules, so even a short non-empty attempt reaches credential verification. Demo accounts, posts, likes, comments, replies, and mentions are isolated to browser storage and are clearly labelled `Demo` in the interface.
 
 Never enable demo mode in a production deployment.
 
@@ -130,9 +131,10 @@ The upload service selects Cloudinary only when the complete configuration exist
 | `POST` | `/api/auth/logout` | Public/idempotent | Clear session cookie |
 | `GET` | `/api/auth/me` | Required | Restore current account |
 | `GET` | `/api/posts?page=1&limit=10` | Required | Read newest posts |
+| `GET` | `/api/users?query=mira&limit=8` | Required | Find usernames for mention suggestions |
 | `POST` | `/api/posts` | Required | Create multipart text/image post |
 | `POST` | `/api/posts/:postId/like` | Required | Toggle the current user's like |
-| `POST` | `/api/posts/:postId/comments` | Required | Add a comment |
+| `POST` | `/api/posts/:postId/comments` | Required | Add a comment or one-level reply with canonical mentions |
 
 Authentication routes are rate-limited. Post/comment length, file type, file size, email, username, and password rules are checked at both relevant boundaries.
 
@@ -146,16 +148,18 @@ pnpm check
 
 The targeted tests cover:
 
-- rejection of the original one-character-password defect in the browser and server rules;
-- valid password boundaries;
+- distinct signup-strength and login-credential validation semantics;
+- valid signup password boundaries and letter/number requirements;
 - email normalization and signup validation;
 - bcrypt hashing and wrong-password rejection;
 - text-only/image-only post schema behavior;
 - rejection of empty posts;
 - enforcement of the two-collection data model.
 - preservation of Account A's post in Account B's public-feed response.
+- one-level reply flattening and canonical server-side mention identities;
+- mention search privacy and frontend mention parsing.
 
-The completed UI was also exercised through the browser at 360px, 390px, 768px, and 1440px. The verified journey includes login, independent password visibility, feed loading, post creation, like/unlike, comments, refresh persistence, and real-mode API failure behavior.
+The completed UI was also exercised through the browser at 360px, 390px, 430px, 768px, 1024px, and 1440px. The verified journey includes strict signup feedback, credential-based login, feed loading, reply-to-reply flattening, keyboard and pointer mention selection, and responsive comment layouts. No horizontal overflow or browser-console errors were found.
 
 ## Product decisions
 
@@ -165,5 +169,6 @@ The completed UI was also exercised through the browser at 360px, 390px, 768px, 
 - Mobile bottom navigation is used only at compact widths; desktop receives a proper side navigation and context rail.
 - The dark visual system is restrained and content-led rather than relying on blanket glassmorphism or glow effects.
 - The older automatic Offline Explorer behavior was removed because it could conceal backend failures and invalidate an assessment demo.
+- Mention/reply notifications remain future work. The current two-collection assessment architecture has no notification delivery model, and adding one would expand scope beyond the requested social-feed behavior.
 
 See [IMPLEMENTATION_DECISIONS.md](./IMPLEMENTATION_DECISIONS.md) for the implementation rationale and acceptance criteria.

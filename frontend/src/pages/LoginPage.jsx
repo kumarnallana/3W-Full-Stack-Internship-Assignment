@@ -116,6 +116,7 @@ export default function LoginPage() {
           error={fieldErrors.password}
           autoComplete="current-password"
           inputRef={passwordRef}
+          minLength={1}
           onBlur={() => validateField("password")}
         />
 

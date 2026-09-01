@@ -23,15 +23,15 @@ The replacement has two explicit modes:
 - `real` is the default and only talks to the Express API;
 - `demo` must be configured before Vite starts and uses a visibly labelled local environment.
 
-A runtime network failure does not change modes. In both modes, a one-character password fails validation. Demo mode also compares a digest of the submitted password against the selected demo account instead of accepting arbitrary credentials.
+A runtime network failure does not change modes. Signup enforces the full password policy in both modes. Login accepts any non-empty password as an attempt and then verifies the actual credential; it does not incorrectly reuse signup-strength validation. Demo mode compares a digest of the submitted password against the selected demo account instead of accepting arbitrary credentials.
 
 ### Validation is defense in depth
 
-The frontend provides immediate, field-specific feedback, semantic length attributes, `aria-invalid`, linked error descriptions, and focus on the first invalid field. The backend independently validates the same minimum/maximum boundaries before any database or hashing operation.
+The frontend provides immediate, field-specific feedback, semantic length attributes, `aria-invalid`, linked error descriptions, and focus on the first invalid field. The backend independently enforces the same signup policy before any database or hashing operation. Login separately validates presence/length before credential comparison.
 
 ### Password handling
 
-- Passwords contain 8–64 characters.
+- Signup passwords contain 8–64 characters with at least one letter and one number.
 - The backend stores a bcrypt hash with cost factor 12.
 - Login uses bcrypt comparison and returns the generic response “Email or password is incorrect.”
 - Sessions are signed JWTs delivered through an HTTP-only cookie; the real client never reads or stores the token in JavaScript.
@@ -39,6 +39,8 @@ The frontend provides immediate, field-specific feedback, semantic length attrib
 ## Data architecture
 
 Only `users` and `posts` are modeled as MongoDB collections. Likes and comments are bounded subdocuments inside a post, which satisfies the assessment constraint and makes a feed read self-contained. Author usernames are stored as snapshots with interactions to preserve understandable historical feed content.
+
+Replies remain embedded comments. The API converts a reply-to-reply into a reply to the original root while retaining the clicked target's ID and username, so the interface never grows beyond one visual indentation level. Mentions store canonical user IDs and username snapshots resolved by the server. Client-supplied usernames are never treated as authoritative.
 
 The feed query is intentionally global rather than user-scoped. Account A can publish, log out, and Account B will receive Account A's post from the same `posts` collection. Only viewer-specific state, such as `viewerHasLiked`, is calculated for the currently authenticated account.
 
@@ -66,3 +68,6 @@ The visual hierarchy remains intentionally restrained:
 - Mobile, tablet, and desktop layouts have no horizontal overflow.
 - API, validation, and content errors remain visible without destroying the layout.
 - Demo mode is explicit, labelled, credential-aware, and never a network-error fallback.
+- Replies retain their target context while remaining one level deep.
+- Mention suggestions support keyboard and touch input and store validated user identities.
+- Notifications are future work because the assessment architecture has no notification collection or delivery channel.

@@ -79,8 +79,8 @@ export default function FeedPage() {
     }
   }
 
-  async function handleAddComment(postId, text) {
-    const result = await postsApi.addComment(postId, text);
+  async function handleAddComment(postId, comment) {
+    const result = await postsApi.addComment(postId, comment);
     setPosts((current) =>
       current.map((post) => {
         if (post.id !== postId) return post;
@@ -138,4 +138,3 @@ export default function FeedPage() {
     </AppShell>
   );
 }
-

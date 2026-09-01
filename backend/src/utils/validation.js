@@ -26,8 +26,8 @@ export function validateLoginInput(values = {}) {
   if (!validateEmail(values.email)) {
     fieldErrors.email = "Enter a valid email address.";
   }
-  if (typeof values.password !== "string" || values.password.length < AUTH_LIMITS.passwordMin) {
-    fieldErrors.password = `Password must contain at least ${AUTH_LIMITS.passwordMin} characters.`;
+  if (typeof values.password !== "string" || !values.password) {
+    fieldErrors.password = "Enter your password.";
   } else if (values.password.length > AUTH_LIMITS.passwordMax) {
     fieldErrors.password = `Password must contain at most ${AUTH_LIMITS.passwordMax} characters.`;
   }
@@ -41,6 +41,14 @@ export function validateSignupInput(values = {}) {
     fieldErrors.username = `Username must contain at least ${AUTH_LIMITS.usernameMin} characters.`;
   } else if (username.length > AUTH_LIMITS.usernameMax) {
     fieldErrors.username = `Username must contain at most ${AUTH_LIMITS.usernameMax} characters.`;
+  }
+  const password = typeof values.password === "string" ? values.password : "";
+  if (password && (
+    password.length < AUTH_LIMITS.passwordMin ||
+    !/[A-Za-z]/.test(password) ||
+    !/\d/.test(password)
+  )) {
+    fieldErrors.password = `Password must contain ${AUTH_LIMITS.passwordMin}–${AUTH_LIMITS.passwordMax} characters, including at least one letter and one number.`;
   }
   return fieldErrors;
 }

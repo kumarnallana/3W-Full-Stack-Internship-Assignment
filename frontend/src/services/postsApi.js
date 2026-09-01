@@ -6,8 +6,10 @@ function firstDefined(...values) {
 
 export function normalizeComment(comment = {}) {
   const author = comment.author || comment.user || {};
+  const rawMentions = Array.isArray(comment.mentions) ? comment.mentions : [];
   return {
     id: String(firstDefined(comment.id, comment._id, crypto.randomUUID())),
+    userId: String(firstDefined(comment.userId, author.id, author._id, "")),
     username: firstDefined(
       comment.username,
       author.username,
@@ -17,6 +19,17 @@ export function normalizeComment(comment = {}) {
     avatarUrl: firstDefined(comment.avatarUrl, author.avatarUrl, author.avatar),
     text: firstDefined(comment.text, comment.content, ""),
     createdAt: firstDefined(comment.createdAt, comment.date),
+    parentCommentId: firstDefined(comment.parentCommentId, null)
+      ? String(comment.parentCommentId)
+      : null,
+    replyToUserId: firstDefined(comment.replyToUserId, null)
+      ? String(comment.replyToUserId)
+      : null,
+    replyToUsername: firstDefined(comment.replyToUsername, ""),
+    mentions: rawMentions.map((mention) => ({
+      id: String(firstDefined(mention.id, mention._id, mention.userId, "")),
+      username: mention.username,
+    })).filter((mention) => mention.id && mention.username),
   };
 }
 
@@ -109,13 +122,12 @@ export const postsApi = {
     );
   },
 
-  async addComment(postId, text) {
+  async addComment(postId, { text, parentCommentId = null, mentionUserIds = [] }) {
     return normalizePostMutation(
       await apiRequest(`/posts/${postId}/comments`, {
         method: "POST",
-        body: { text: text.trim() },
+        body: { text: text.trim(), parentCommentId, mentionUserIds },
       }),
     );
   },
 };
-

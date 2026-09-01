@@ -147,6 +147,28 @@ function findPost(postId) {
   return post;
 }
 
+function mentionToken(username) {
+  return `@${String(username || "").trim().replace(/\s+/g, "_")}`;
+}
+
+function collectDemoUsers() {
+  const users = new Map();
+  const addUser = (candidate) => {
+    const userId = candidate?._id || candidate?.userId;
+    const username = candidate?.username;
+    if (userId && username && !users.has(String(userId))) {
+      users.set(String(userId), { _id: String(userId), username: String(username) });
+    }
+  };
+
+  state.accounts.forEach(addUser);
+  state.posts.forEach((post) => {
+    addUser(post.author);
+    (post.comments || []).forEach((comment) => addUser(comment.author || comment));
+  });
+  return [...users.values()];
+}
+
 async function handleAuth(path, options) {
   await ensureDemoAccount();
   if (path === "/auth/me") return { data: { user: getAuthenticatedUser() } };
@@ -249,8 +271,39 @@ async function handlePosts(path, options) {
     const values = readJsonBody(options.body);
     const content = String(values.text || values.content || "").trim();
     if (!content) throw new DemoApiError("Write a comment before sending.", 422);
+    if (content.length > 400) throw new DemoApiError("Keep your comment within 400 characters.", 422);
+
+    const parentCommentId = values.parentCommentId ? String(values.parentCommentId) : "";
+    const replyTarget = parentCommentId
+      ? post.comments.find((comment) => String(comment._id) === parentCommentId)
+      : null;
+    if (parentCommentId && !replyTarget) {
+      throw new DemoApiError("The comment you are replying to is no longer available.", 404);
+    }
+
+    const rawMentionIds = values.mentionUserIds ?? [];
+    if (!Array.isArray(rawMentionIds) || rawMentionIds.length > 8) {
+      throw new DemoApiError("Choose no more than 8 people to mention.", 422);
+    }
+    const mentionIds = [...new Set(rawMentionIds.map(String))];
+    const knownUsers = new Map(collectDemoUsers().map((candidate) => [candidate._id, candidate]));
+    const mentionedUsers = mentionIds.map((userId) => knownUsers.get(userId));
+    if (mentionedUsers.some((candidate) => !candidate)) {
+      throw new DemoApiError("One or more mentioned users are no longer available.", 422);
+    }
+    const mentions = mentionedUsers
+      .filter((candidate) => content.includes(mentionToken(candidate.username)))
+      .map((candidate) => ({ userId: candidate._id, username: candidate.username }));
+
     const comment = {
-      _id: crypto.randomUUID(), content, author: user, createdAt: new Date().toISOString(),
+      _id: crypto.randomUUID(),
+      content,
+      author: user,
+      parentCommentId: replyTarget?.parentCommentId || replyTarget?._id || null,
+      replyToUserId: replyTarget?.author?._id || replyTarget?.userId || null,
+      replyToUsername: replyTarget?.author?.username || replyTarget?.username || "",
+      mentions,
+      createdAt: new Date().toISOString(),
     };
     post.comments.push(comment);
     persistState();
@@ -260,9 +313,23 @@ async function handlePosts(path, options) {
   throw new DemoApiError("Demo post route not found.", 404);
 }
 
+function handleUsers(path) {
+  const currentUser = getAuthenticatedUser();
+  const url = new URL(path, "https://demo.local");
+  const query = String(url.searchParams.get("query") || "").trim().toLowerCase().slice(0, 40);
+  const limit = Math.min(12, Math.max(1, Number(url.searchParams.get("limit")) || 8));
+  const users = collectDemoUsers()
+    .filter((candidate) => candidate._id !== currentUser._id)
+    .filter((candidate) => !query || candidate.username.toLowerCase().includes(query))
+    .sort((left, right) => left.username.localeCompare(right.username))
+    .slice(0, limit);
+  return { data: { users } };
+}
+
 export async function demoApiRequest(path, options = {}) {
   await wait(180 + Math.round(Math.random() * 180));
   if (path.startsWith("/auth/")) return handleAuth(path, options);
   if (path.startsWith("/posts")) return handlePosts(path, options);
+  if (path.startsWith("/users")) return handleUsers(path);
   throw new DemoApiError("Demo route not found.", 404);
 }
