@@ -4,7 +4,7 @@ import { demoApiRequest, DemoApiError } from "./demoApi";
 const DEFAULT_API_BASE_URL = typeof window !== "undefined" && window.location.hostname === "localhost"
   ? "http://localhost:5000/api"
   : "https://threew-full-stack-internship-assignment-oaq4.onrender.com/api";
-const REQUEST_TIMEOUT_MS = 15000;
+const REQUEST_TIMEOUT_MS = 60000;
 let activeApiMode = APP_MODE;
 const apiModeListeners = new Set();
 
