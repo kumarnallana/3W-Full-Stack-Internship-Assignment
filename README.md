@@ -174,5 +174,3 @@ The completed UI was also exercised through the browser at 360px, 390px, 430px, 
 - The dark visual system is restrained and content-led rather than relying on blanket glassmorphism or glow effects.
 - Explorer fallback is restricted to connection failures and timeouts. It never intercepts a real HTTP rejection, and the resulting demo environment remains visibly labelled and credential-aware.
 - Mention/reply notifications remain future work. The current two-collection assessment architecture has no notification delivery model, and adding one would expand scope beyond the requested social-feed behavior.
-
-See [IMPLEMENTATION_DECISIONS.md](./IMPLEMENTATION_DECISIONS.md) for the implementation rationale and acceptance criteria.
