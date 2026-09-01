@@ -1,0 +1,12 @@
+{
+  "name": "3w-mini-social",
+  "private": true,
+  "version": "1.0.0",
+  "packageManager": "pnpm@11.19.0",
+  "scripts": {
+    "dev": "pnpm --parallel --filter ./backend --filter ./frontend dev",
+    "build": "pnpm --filter ./backend build && pnpm --filter ./frontend build",
+    "test": "pnpm --filter ./backend test && pnpm --filter ./frontend test",
+    "check": "pnpm build && pnpm test"
+  }
+}
