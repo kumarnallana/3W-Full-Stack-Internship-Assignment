@@ -1354,7 +1354,7 @@
 @media (min-width: 861px) {
   .auth-layout {
     display: grid;
-    grid-template-columns: minmax(0, 1.08fr) minmax(440px, 0.92fr);
+    grid-template-columns: minmax(0, 1.2fr) minmax(400px, 1fr);
   }
 
   .auth-story {
@@ -1393,8 +1393,8 @@
 
   .auth-story__points {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--space-3);
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: var(--space-5);
     margin-top: var(--space-10);
   }
 
