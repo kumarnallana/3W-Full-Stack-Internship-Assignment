@@ -9,18 +9,19 @@ export default function FeedHeader({ onCompose }) {
       </div>
 
       <div className="feed-header__copy">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h1 style={{ fontSize: '1.4rem', margin: 0, letterSpacing: '-0.02em' }}>Community</h1>
-          <button
-            className="button button--primary feed-header__action"
-            type="button"
-            onClick={onCompose}
-          >
-            <SquarePen size={16} aria-hidden="true" />
-            New post
-          </button>
-        </div>
+        <h1 style={{ fontSize: '1.4rem', margin: 0, letterSpacing: '-0.02em' }}>Community</h1>
         <p style={{ marginTop: '8px', fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>See what everyone is sharing.</p>
+      </div>
+
+      <div className="feed-header__controls">
+        <button
+          className="button button--primary feed-header__action"
+          type="button"
+          onClick={onCompose}
+        >
+          <SquarePen size={16} aria-hidden="true" />
+          New post
+        </button>
       </div>
     </header>
   );
