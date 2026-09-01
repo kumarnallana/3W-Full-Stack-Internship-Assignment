@@ -1119,8 +1119,8 @@
   top: 3px;
   display: grid;
   place-items: center;
-  color: #211013;
-  background: var(--color-accent);
+  color: var(--color-bg);
+  background: var(--color-primary);
   border: 0;
   border-radius: 10px;
   cursor: pointer;
