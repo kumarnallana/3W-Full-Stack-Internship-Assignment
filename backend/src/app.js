@@ -31,7 +31,7 @@ export function createApp() {
   app.use(express.json({ limit: "64kb" }));
   app.use(cookieParser());
   app.use("/uploads", express.static(path.resolve(uploadsDirectory), {
-    fallthrough: false,
+    fallthrough: true,
     immutable: true,
     maxAge: "7d",
   }));

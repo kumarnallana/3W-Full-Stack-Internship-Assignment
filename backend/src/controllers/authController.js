@@ -23,7 +23,6 @@ function validationError(fieldErrors) {
 function establishSession(response, user) {
   const token = signSession(user._id);
   response.cookie("mini_social_session", token, sessionCookieOptions);
-  return token;
 }
 
 export async function signup(request, response) {
@@ -44,8 +43,8 @@ export async function signup(request, response) {
     email,
     passwordHash: await hashPassword(request.body.password),
   });
-  const token = establishSession(response, user);
-  response.status(201).json({ data: { user: publicUser(user), token } });
+  establishSession(response, user);
+  response.status(201).json({ data: { user: publicUser(user) } });
 }
 
 export async function login(request, response) {
@@ -61,8 +60,8 @@ export async function login(request, response) {
     throw error;
   }
 
-  const token = establishSession(response, user);
-  response.json({ data: { user: publicUser(user), token } });
+  establishSession(response, user);
+  response.json({ data: { user: publicUser(user) } });
 }
 
 export function logout(request, response) {

@@ -1,105 +1,165 @@
-# 3W Mini Social Application
+# Mini Social — 3W Full-Stack Assessment
 
-A responsive React frontend for the 3W full-stack internship assessment. The interface follows the familiar social-feed mental model while using an original, restrained dark visual identity and deliberately improving the mobile, desktop, loading, and password experiences observed in the TaskPlanet reference recordings.
+Mini Social is a complete React, Express, and MongoDB social-post application. It keeps the assessment scope focused—authentication, posts, images, likes, and comments—while providing an original mobile-first interface and honest runtime behavior.
 
-## Current scope
+The important correctness rule is simple: **a network failure never becomes a successful login**. Real mode uses only the Express/MongoDB API. A separate browser-only demo is available only when `VITE_APP_MODE=demo` is explicitly configured.
 
-The repository currently contains the frontend workstream. Backend, Express, MongoDB schemas, and image-storage implementation remain separate so they can be connected through the documented API boundary.
+## Delivered product
 
-Implemented frontend experiences:
+- Account creation and login with matching frontend and server validation.
+- Minimum 8-character and maximum 64-character passwords.
+- Independent show/hide control for every password field.
+- bcrypt password hashing; plaintext passwords are never stored.
+- JWT authentication through an HTTP-only cookie; the real client never stores the token in browser storage.
+- Protected public feed with pagination.
+- Text-only, image-only, and text-plus-image posts.
+- Persistent likes and embedded comments with immediate UI updates.
+- Local development image storage and optional Cloudinary production storage.
+- Explicit demo environment with verified credentials and local browser persistence.
+- Loading, empty, error, retry, upload, and optimistic-update states.
+- Purpose-built phone, tablet, and desktop layouts without TailwindCSS.
 
-- Accessible signup and login screens.
-- Independent visibility controls for every password field.
-- Protected feed route and session bootstrap.
-- Offline Explorer Mode for authentication, feed, posts, images, likes, and comments when the backend cannot be reached.
-- Text-only, image-only, and combined post composer.
-- Image preview, removal, type validation, and 5 MB size validation.
-- Public feed cards with author, timestamp, content, media, likes, and comments.
-- Optimistic like/unlike updates with rollback on failure.
-- Immediate comment and new-post insertion from API responses.
-- Skeleton, empty, error, retry, media-failure, and contextual loading states.
-- Load-more pagination UI.
-- Purpose-built mobile, tablet, laptop, and desktop layouts.
-- Reduced-motion support, visible focus states, semantic controls, and accessible labels.
-
-TailwindCSS is not installed or used.
-
-## Project structure
+## Architecture
 
 ```text
-frontend/
-├── src/
-│   ├── components/
-│   │   ├── auth/
-│   │   ├── feedback/
-│   │   ├── layout/
-│   │   ├── posts/
-│   │   └── ui/
-│   ├── context/
-│   ├── pages/
-│   ├── services/
-│   ├── styles/
-│   └── utils/
-├── .env.example
-├── index.html
+.
+├── backend/
+│   ├── src/
+│   │   ├── config/       # environment and MongoDB connection
+│   │   ├── controllers/  # authentication and post use cases
+│   │   ├── middleware/   # auth, uploads, errors, async boundaries
+│   │   ├── models/       # User and Post—the only two collections
+│   │   ├── routes/       # /api/auth and /api/posts
+│   │   ├── services/     # local/Cloudinary image persistence
+│   │   └── utils/        # password/session and validation rules
+│   └── test/
+├── frontend/
+│   └── src/
+│       ├── components/
+│       ├── config/
+│       ├── context/
+│       ├── pages/
+│       ├── services/
+│       ├── styles/
+│       ├── utils/
+│       └── validation/
 ├── package.json
-└── vite.config.js
+└── pnpm-workspace.yaml
 ```
 
-The implementation rationale and provisional API contract are recorded in [`FRONTEND_IMPLEMENTATION_PLAN.md`](./FRONTEND_IMPLEMENTATION_PLAN.md).
+### MongoDB collections
 
-## Run locally
+The assessment constraint is enforced through exactly two Mongoose collections:
 
-Use a current LTS release of Node.js and pnpm.
+1. `users` stores username, normalized unique email, password hash, and timestamps.
+2. `posts` stores an embedded author snapshot, optional text/image metadata, embedded likes, embedded comments, and timestamps.
+
+No sessions, comments, likes, or upload metadata collections are created.
+
+## Run the real full-stack application
+
+Prerequisites:
+
+- Node.js 20 or newer
+- pnpm
+- a local MongoDB server or MongoDB Atlas connection string
+
+Install from the repository root:
 
 ```bash
-cd frontend
 pnpm install
-cp .env.example .env
+```
+
+Create local environment files:
+
+```powershell
+Copy-Item backend/.env.example backend/.env
+Copy-Item frontend/.env.example frontend/.env
+```
+
+Set a strong `JWT_SECRET` and the correct `MONGODB_URI` in `backend/.env`. Then run both applications:
+
+```bash
 pnpm dev
 ```
 
-On Windows PowerShell, copy the environment file with:
+- Frontend: `http://localhost:5173`
+- API: `http://localhost:5000/api`
+- Health check: `http://localhost:5000/api/health`
 
-```powershell
-Copy-Item .env.example .env
-```
+The frontend defaults to `VITE_APP_MODE=real`. If the API or MongoDB is not available, it shows a connection error and remains unauthenticated.
 
-The default frontend URL is `http://localhost:5173`.
+## Run the explicit demo
 
-## Environment
+The demo is useful for an interviewer who wants to inspect the product without configuring MongoDB. Set this in `frontend/.env.local`:
 
 ```env
-VITE_API_BASE_URL=http://localhost:5000/api
-VITE_ENABLE_EXPLORER_MODE=true
+VITE_APP_MODE=demo
 ```
 
-The client sends cookies with `credentials: "include"`. If the backend returns a bearer token, the compatibility layer keeps it in `sessionStorage` for the current browser tab and attaches it to subsequent requests. An HTTP-only cookie remains the preferred production authentication mechanism.
-
-Explorer Mode activates only when `fetch` cannot reach the configured backend or the request times out. Normal HTTP errors such as validation, authentication, and server responses are still surfaced to the UI instead of being converted into mock successes. Set `VITE_ENABLE_EXPLORER_MODE=false` to require the real API during integration testing.
-
-## Expected backend endpoints
-
-All path assumptions are isolated in `frontend/src/services/`:
-
-| Method | Path | Purpose |
-| --- | --- | --- |
-| `POST` | `/auth/signup` | Create an account |
-| `POST` | `/auth/login` | Authenticate |
-| `POST` | `/auth/logout` | End the session |
-| `GET` | `/auth/me` | Restore the current user |
-| `GET` | `/posts?page=1&limit=10` | Load the public feed |
-| `POST` | `/posts` | Create a post using `multipart/form-data` |
-| `POST` | `/posts/:postId/like` | Toggle the current user's like |
-| `POST` | `/posts/:postId/comments` | Add a comment |
-
-The normalizers accept common response envelopes such as `{ data }`, `{ user, token }`, `{ posts, pagination }`, direct resources, and MongoDB `_id` values. Adjust only the service layer when the final backend contract differs.
-
-## Production build
+Then run only the frontend:
 
 ```bash
-cd frontend
-pnpm build
+pnpm --filter ./frontend dev
 ```
 
-The generated production files are written to `frontend/dist/`.
+Use the **Use the verified demo account** button on the login page. Demo login still verifies the supplied email and password; incorrect or short passwords fail. Demo accounts, posts, likes, and comments are isolated to browser storage and are clearly labelled `Demo` in the interface.
+
+Never enable demo mode in a production deployment.
+
+## Image storage
+
+During local development, uploads are written to `backend/uploads/` and served from `/uploads`. For durable hosted deployments, set all three Cloudinary variables in `backend/.env`:
+
+```env
+CLOUDINARY_CLOUD_NAME=...
+CLOUDINARY_API_KEY=...
+CLOUDINARY_API_SECRET=...
+```
+
+The upload service selects Cloudinary only when the complete configuration exists. MongoDB stores image metadata/URLs, not base64 image bodies.
+
+## API contract
+
+| Method | Endpoint | Authentication | Purpose |
+| --- | --- | --- | --- |
+| `POST` | `/api/auth/signup` | Public | Create account and session |
+| `POST` | `/api/auth/login` | Public | Verify credentials and create session |
+| `POST` | `/api/auth/logout` | Public/idempotent | Clear session cookie |
+| `GET` | `/api/auth/me` | Required | Restore current account |
+| `GET` | `/api/posts?page=1&limit=10` | Required | Read newest posts |
+| `POST` | `/api/posts` | Required | Create multipart text/image post |
+| `POST` | `/api/posts/:postId/like` | Required | Toggle the current user's like |
+| `POST` | `/api/posts/:postId/comments` | Required | Add a comment |
+
+Authentication routes are rate-limited. Post/comment length, file type, file size, email, username, and password rules are checked at both relevant boundaries.
+
+## Verification
+
+Run the complete build and regression suite:
+
+```bash
+pnpm check
+```
+
+The targeted tests cover:
+
+- rejection of the original one-character-password defect in the browser and server rules;
+- valid password boundaries;
+- email normalization and signup validation;
+- bcrypt hashing and wrong-password rejection;
+- text-only/image-only post schema behavior;
+- rejection of empty posts;
+- enforcement of the two-collection data model.
+
+The completed UI was also exercised through the browser at 360px, 390px, 768px, and 1440px. The verified journey includes login, independent password visibility, feed loading, post creation, like/unlike, comments, refresh persistence, and real-mode API failure behavior.
+
+## Product decisions
+
+- TaskPlanet was treated as behavioral inspiration, not a visual template.
+- WhatsApp integration and unrelated social-network features remain out of scope.
+- Mobile bottom navigation is used only at compact widths; desktop receives a proper side navigation and context rail.
+- The dark visual system is restrained and content-led rather than relying on blanket glassmorphism or glow effects.
+- The older automatic Offline Explorer behavior was removed because it could conceal backend failures and invalidate an assessment demo.
+
+See [IMPLEMENTATION_DECISIONS.md](./IMPLEMENTATION_DECISIONS.md) for the implementation rationale and acceptance criteria.

@@ -1,4 +1,4 @@
-import { apiRequest, setSessionToken, unwrapData } from "./apiClient";
+import { apiRequest, unwrapData } from "./apiClient";
 
 function normalizeAuthResponse(payload) {
   const body = unwrapData(payload) || {};
@@ -10,25 +10,21 @@ function normalizeAuthResponse(payload) {
 
 export const authApi = {
   async signup(values) {
-    const response = normalizeAuthResponse(
+    return normalizeAuthResponse(
       await apiRequest("/auth/signup", {
         method: "POST",
         body: values,
       }),
     );
-    setSessionToken(response.token);
-    return response;
   },
 
   async login(values) {
-    const response = normalizeAuthResponse(
+    return normalizeAuthResponse(
       await apiRequest("/auth/login", {
         method: "POST",
         body: values,
       }),
     );
-    setSessionToken(response.token);
-    return response;
   },
 
   async me() {
@@ -37,11 +33,6 @@ export const authApi = {
   },
 
   async logout() {
-    try {
-      await apiRequest("/auth/logout", { method: "POST" });
-    } finally {
-      setSessionToken(null);
-    }
+    await apiRequest("/auth/logout", { method: "POST" });
   },
 };
-

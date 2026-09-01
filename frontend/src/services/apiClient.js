@@ -2,7 +2,6 @@ import { APP_MODE } from "../config/appMode";
 import { demoApiRequest, DemoApiError } from "./demoApi";
 
 const DEFAULT_API_BASE_URL = "http://localhost:5000/api";
-const TOKEN_KEY = "mini_social_session_token";
 const REQUEST_TIMEOUT_MS = 8000;
 
 export const API_BASE_URL = (
@@ -20,18 +19,6 @@ export class ApiError extends Error {
 
 export function getApiMode() {
   return APP_MODE;
-}
-
-export function getSessionToken() {
-  return window.sessionStorage.getItem(TOKEN_KEY);
-}
-
-export function setSessionToken(token) {
-  if (token) {
-    window.sessionStorage.setItem(TOKEN_KEY, token);
-  } else {
-    window.sessionStorage.removeItem(TOKEN_KEY);
-  }
 }
 
 export function unwrapData(payload) {
@@ -53,12 +40,10 @@ export async function apiRequest(path, options = {}) {
   }
 
   const { body, headers = {}, ...requestOptions } = options;
-  const token = getSessionToken();
   const isFormData = body instanceof FormData;
   const requestHeaders = {
     Accept: "application/json",
     ...(!isFormData && body ? { "Content-Type": "application/json" } : {}),
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...headers,
   };
 
