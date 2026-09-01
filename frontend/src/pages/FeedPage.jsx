@@ -97,6 +97,39 @@ export default function FeedPage() {
     );
   }
 
+  async function handleEditComment(postId, commentId, commentData) {
+    const result = await postsApi.editComment(postId, commentId, commentData);
+    setPosts((current) =>
+      current.map((post) => {
+        if (post.id !== postId) return post;
+        if (result.post) return result.post;
+        return post;
+      }),
+    );
+  }
+
+  async function handleDeleteComment(postId, commentId) {
+    const result = await postsApi.deleteComment(postId, commentId);
+    setPosts((current) =>
+      current.map((post) => {
+        if (post.id !== postId) return post;
+        if (result.post) return result.post;
+        return post;
+      }),
+    );
+  }
+
+  async function handleToggleCommentLike(postId, commentId) {
+    const result = await postsApi.toggleCommentLike(postId, commentId);
+    setPosts((current) =>
+      current.map((post) => {
+        if (post.id !== postId) return post;
+        if (result.post) return result.post;
+        return post;
+      }),
+    );
+  }
+
   return (
     <AppShell onCompose={focusComposer}>
       <div className="feed-page">
@@ -118,6 +151,9 @@ export default function FeedPage() {
               post={post}
               onToggleLike={handleToggleLike}
               onAddComment={handleAddComment}
+              onEditComment={handleEditComment}
+              onDeleteComment={handleDeleteComment}
+              onToggleCommentLike={handleToggleCommentLike}
             />
           ))}
 

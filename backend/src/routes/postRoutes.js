@@ -5,6 +5,9 @@ import {
   createPost,
   getPosts,
   toggleLike,
+  editComment,
+  deleteComment,
+  toggleCommentLike,
 } from "../controllers/postController.js";
 import { asyncHandler } from "../middleware/asyncHandler.js";
 import { authenticate } from "../middleware/authenticate.js";
@@ -25,3 +28,6 @@ postRouter.get("/", asyncHandler(getPosts));
 postRouter.post("/", mutationLimiter, uploadPostImage, asyncHandler(createPost));
 postRouter.post("/:postId/like", mutationLimiter, asyncHandler(toggleLike));
 postRouter.post("/:postId/comments", mutationLimiter, asyncHandler(addComment));
+postRouter.put("/:postId/comments/:commentId", mutationLimiter, asyncHandler(editComment));
+postRouter.delete("/:postId/comments/:commentId", mutationLimiter, asyncHandler(deleteComment));
+postRouter.post("/:postId/comments/:commentId/like", mutationLimiter, asyncHandler(toggleCommentLike));

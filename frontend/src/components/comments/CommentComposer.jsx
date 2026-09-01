@@ -4,12 +4,12 @@ import { useMentionAutocomplete } from "../../hooks/useMentionAutocomplete";
 import { mentionToken } from "../../utils/mentions";
 import MentionSuggestions from "./MentionSuggestions";
 
-export default function CommentComposer({ inputId, onSubmit, replyTarget = null, onCancel }) {
+export default function CommentComposer({ inputId, onSubmit, replyTarget = null, onCancel, initialText = "" }) {
   const initialMention = replyTarget
     ? [{ id: replyTarget.userId, username: replyTarget.username }]
     : [];
   const mention = useMentionAutocomplete({
-    initialText: replyTarget ? `${mentionToken(replyTarget.username)} ` : "",
+    initialText: initialText || (replyTarget ? `${mentionToken(replyTarget.username)} ` : ""),
     initialMentions: initialMention,
   });
   const [error, setError] = useState("");
@@ -74,7 +74,7 @@ export default function CommentComposer({ inputId, onSubmit, replyTarget = null,
           }}
           onFocus={mention.handleFocus}
           onKeyDown={mention.handleKeyDown}
-          placeholder={replyTarget ? "Write a reply…" : "Write a comment… Use @ to mention someone"}
+          placeholder={initialText ? "Edit comment…" : (replyTarget ? "Write a reply…" : "Write a comment… Use @ to mention someone")}
           maxLength={400}
           autoComplete="off"
           aria-autocomplete="list"
@@ -84,7 +84,7 @@ export default function CommentComposer({ inputId, onSubmit, replyTarget = null,
             ? `${suggestionsId}-${mention.suggestions[mention.activeIndex].id}`
             : undefined}
         />
-        <button className="comment-thread__send" type="submit" disabled={submitting || !hasMessage} aria-label={replyTarget ? "Send reply" : "Send comment"}>
+        <button className="comment-thread__send" type="submit" disabled={submitting || !hasMessage} aria-label={initialText ? "Save changes" : (replyTarget ? "Send reply" : "Send comment")}>
           {submitting ? <LoaderCircle className="spin" size={18} /> : <Send size={18} />}
         </button>
         {mention.open ? (

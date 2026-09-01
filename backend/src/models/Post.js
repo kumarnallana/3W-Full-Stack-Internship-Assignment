@@ -20,9 +20,12 @@ const commentSchema = new mongoose.Schema(
     replyToUserId: { type: ObjectId, default: null },
     replyToUsername: { type: String, trim: true, default: "" },
     mentions: { type: [identitySchema], default: [] },
+    likes: { type: [identitySchema], default: [] },
+    isEdited: { type: Boolean, default: false },
     createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now },
   },
-  { _id: true },
+  { _id: true, timestamps: true },
 );
 
 const postSchema = new mongoose.Schema(

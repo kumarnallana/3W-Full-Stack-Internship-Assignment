@@ -2,7 +2,14 @@ import { useMemo, useState } from "react";
 import CommentComposer from "../comments/CommentComposer";
 import CommentItem from "../comments/CommentItem";
 
-export default function CommentThread({ comments, onAddComment, inputId }) {
+export default function CommentThread({ 
+  comments, 
+  onAddComment, 
+  onEditComment,
+  onDeleteComment,
+  onToggleCommentLike,
+  inputId 
+}) {
   const [replyTarget, setReplyTarget] = useState(null);
   const { roots, repliesByRoot } = useMemo(() => {
     const ids = new Set(comments.map((comment) => comment.id));
@@ -20,7 +27,14 @@ export default function CommentThread({ comments, onAddComment, inputId }) {
   function renderComment(comment, isReply = false) {
     return (
       <div className="comment-thread__item" key={comment.id}>
-        <CommentItem comment={comment} isReply={isReply} onReply={setReplyTarget} />
+        <CommentItem 
+          comment={comment} 
+          isReply={isReply} 
+          onReply={setReplyTarget}
+          onEdit={(data) => onEditComment(comment.id, data)}
+          onDelete={() => onDeleteComment(comment.id)}
+          onToggleLike={() => onToggleCommentLike(comment.id)}
+        />
         {replyTarget?.id === comment.id ? (
           <CommentComposer
             key={`reply-${comment.id}`}

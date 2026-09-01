@@ -5,7 +5,14 @@ import Avatar from "../ui/Avatar";
 import CommentThread from "./CommentThread";
 import ImageLightbox from "./ImageLightbox";
 
-export default function PostCard({ post, onToggleLike, onAddComment }) {
+export default function PostCard({ 
+  post, 
+  onToggleLike, 
+  onAddComment,
+  onEditComment,
+  onDeleteComment,
+  onToggleCommentLike
+}) {
   const [commentsOpen, setCommentsOpen] = useState(false);
   const [likePending, setLikePending] = useState(false);
   const [actionError, setActionError] = useState("");
@@ -106,6 +113,9 @@ export default function PostCard({ post, onToggleLike, onAddComment }) {
           comments={post.comments}
           inputId={`comment-${post.id}`}
           onAddComment={(comment) => onAddComment(post.id, comment)}
+          onEditComment={(commentId, comment) => onEditComment(post.id, commentId, comment)}
+          onDeleteComment={(commentId) => onDeleteComment(post.id, commentId)}
+          onToggleCommentLike={(commentId) => onToggleCommentLike(post.id, commentId)}
         />
       ) : null}
     </article>

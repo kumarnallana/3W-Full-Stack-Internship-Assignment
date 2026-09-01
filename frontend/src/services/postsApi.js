@@ -19,6 +19,10 @@ export function normalizeComment(comment = {}) {
     avatarUrl: firstDefined(comment.avatarUrl, author.avatarUrl, author.avatar),
     text: firstDefined(comment.text, comment.content, ""),
     createdAt: firstDefined(comment.createdAt, comment.date),
+    updatedAt: comment.updatedAt || null,
+    isEdited: Boolean(comment.isEdited),
+    likeCount: Number(firstDefined(comment.likeCount, comment.likesCount, 0)),
+    viewerHasLiked: Boolean(firstDefined(comment.viewerHasLiked, false)),
     parentCommentId: firstDefined(comment.parentCommentId, null)
       ? String(comment.parentCommentId)
       : null,
@@ -128,6 +132,32 @@ export const postsApi = {
         method: "POST",
         body: { text: text.trim(), parentCommentId, mentionUserIds },
       }),
+    );
+  },
+
+  async editComment(postId, commentId, { text, mentionUserIds = [] }) {
+    return normalizePostMutation(
+      await apiRequest(`/posts/${postId}/comments/${commentId}`, {
+        method: "PUT",
+        body: { text: text.trim(), mentionUserIds },
+      }),
+    );
+  },
+
+  async deleteComment(postId, commentId) {
+    const payload = await apiRequest(`/posts/${postId}/comments/${commentId}`, {
+      method: "DELETE",
+    });
+    const body = unwrapData(payload) || {};
+    return {
+      post: body.post ? normalizePost(body.post) : null,
+      deletedCommentId: body.deletedCommentId,
+    };
+  },
+
+  async toggleCommentLike(postId, commentId) {
+    return normalizePostMutation(
+      await apiRequest(`/posts/${postId}/comments/${commentId}/like`, { method: "POST" }),
     );
   },
 };
