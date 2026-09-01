@@ -2,7 +2,7 @@
   color-scheme: dark;
 
   /* Typography */
-  --font-sans: "Segoe UI Variable Text", "Segoe UI", Inter, Aptos, Roboto, Helvetica, Arial, sans-serif;
+  --font-sans: "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   --font-mono: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
 
   /* Type scale */

@@ -9,9 +9,8 @@ export default function FeedHeader({ onCompose }) {
       </div>
 
       <div className="feed-header__copy">
-        <p className="eyebrow" style={{ marginBottom: '4px' }}>THE COMMUNITY FEED</p>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h1 style={{ fontSize: '1.4rem', margin: 0, letterSpacing: '-0.02em' }}>Fresh from the feed</h1>
+          <h1 style={{ fontSize: '1.4rem', margin: 0, letterSpacing: '-0.02em' }}>Community</h1>
           <button
             className="button button--primary feed-header__action"
             type="button"
@@ -21,7 +20,7 @@ export default function FeedHeader({ onCompose }) {
             New post
           </button>
         </div>
-        <p style={{ marginTop: '8px', fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>See what's happening right now.</p>
+        <p style={{ marginTop: '8px', fontSize: '0.85rem', color: 'var(--color-text-secondary)' }}>See what everyone is sharing.</p>
       </div>
     </header>
   );

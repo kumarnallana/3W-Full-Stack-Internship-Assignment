@@ -728,6 +728,10 @@
   margin: var(--space-4) calc(var(--space-5) * -1) 0;
   background: var(--color-bg-deep);
   border-block: 1px solid var(--color-border);
+  display: grid;
+  place-items: center;
+  max-height: 640px;
+  overflow: hidden;
 }
 
 .post-card__media-button {
@@ -744,7 +748,8 @@
 
 .post-card__media-button img {
   width: 100%;
-  max-height: 620px;
+  height: auto;
+  max-height: 640px;
   object-fit: contain;
   transition: transform var(--transition-medium);
 }
